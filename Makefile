@@ -10,7 +10,7 @@ $(VENV)/bin/activate: requirements.txt
 	$(PIP) install -r requirements.txt
 
 run: $(VENV)/bin/activate
-	@$(PYTHON) query.py
+	@$(PYTHON) openai_chat.py
 
 ## Clean all the venv content, so you could restart the building from a clean environment
 clean:

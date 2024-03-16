@@ -2,6 +2,15 @@
 
 A Python script that interacts with the OpenAI API to generate conversational AI responses based on user input. It simulates a chat environment where the AI responds thoughtfully to each message.
 
+## Features(to be implemented)
+
+- Create prompt
+- Select model
+- Access website
+- Read files
+- Count tokens
+- Calculate cost based on tokens and model
+
 ## Getting Started
 
 This script leverages the OpenAI API to generate responses, creating an interactive chat experience. Follow these instructions to set up and run the script in your local environment.
