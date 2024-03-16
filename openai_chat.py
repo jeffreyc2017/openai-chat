@@ -4,6 +4,7 @@ import configparser
 from openai import OpenAI
 import tiktoken
 from model_selector import choose_model
+from prompt_creator import choose_prompt, format_user_input
 
 
 # Initialization
@@ -56,31 +57,6 @@ def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613"):
     num_tokens += 3  # every reply is primed with <|start|>assistant<|message|>
     return num_tokens
 
-def choose_prompt():
-    prompts = [
-        "You are an assistant.",
-        "You are a friend giving advice.",
-        "You are a tutor explaining a concept.",
-        "You are a coach motivating your team.",
-        "You are a traveler sharing stories."
-    ]
-    
-    print("Choose a conversation starter:")
-    for i, prompt in enumerate(prompts, start=1):
-        print(f"{i}. {prompt}")
-    print("Select a number or press enter for a random start.")
-
-    choice = input("Your choice: ")
-    try:
-        chosen_index = int(choice) - 1
-        if chosen_index in range(len(prompts)):
-            return prompts[chosen_index]
-        else:
-            raise ValueError
-    except ValueError:
-        print("Invalid choice, proceeding with a random prompt.")
-        return "You are an assistant."
-
 def chat(system_prompt, model):
     """
     This function continuously accepts user input, breaks it into lines, and then sends it to
@@ -88,6 +64,7 @@ def chat(system_prompt, model):
     The conversation starts with the system stating "You are a good friend.".
     """
     print("\nEnter your message. Press enter twice to send. Type 'exit' to quit.")
+
     while True:
         print("\nyou: ", end="")
         user_input = []
@@ -100,7 +77,7 @@ def chat(system_prompt, model):
         if not user_input:  # Skip empty messages
             continue
 
-        message = "\n".join(user_input)
+        message = format_user_input(user_input)
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": message},

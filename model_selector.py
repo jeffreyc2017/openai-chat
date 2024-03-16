@@ -2,11 +2,14 @@ def list_models():
     """
     Returns a list of available models.
     This function can be expanded to dynamically fetch models from an API.
+    https://platform.openai.com/docs/models/continuous-model-upgrades
     """
     return [
-        "text-davinci-003",
         "gpt-3.5-turbo",
+        "gpt-3.5-turbo-instruct",
         "gpt-4",
+        "gpt-4-32k",
+        "gpt-4-turbo-preview",
         # Add more models as needed
     ]
 

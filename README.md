@@ -14,6 +14,8 @@ A Python script that interacts with the OpenAI API to generate conversational AI
 
 - Calculate cost based on tokens and model
 
+    [OpenAI API pricing](https://openai.com/pricing)
+
 ## Getting Started
 
 This script leverages the OpenAI API to generate responses, creating an interactive chat experience. Follow these instructions to set up and run the script in your local environment.
