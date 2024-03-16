@@ -11,7 +11,13 @@ $(VENV)/bin/activate: requirements.txt
 
 run: $(VENV)/bin/activate
 	@$(PYTHON) src/main.py
-test: $(VEN)
+
+test: $(VENV)/bin/activate
+	@$(PYTHON) -m unittest tests/test_chat_handler.py
+	@$(PYTHON) -m unittest tests/test_model_selector.py
+	@$(PYTHON) -m unittest tests/test_prompt_creator.py
+	@$(PYTHON) -m unittest tests/test_token_counter.py
+
 ## Clean all the venv content, so you could restart the building from a clean environment
 clean:
 	rm -fr venv
