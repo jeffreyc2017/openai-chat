@@ -53,7 +53,7 @@ To run the script, follow these steps:
 2.	Before using make, ensure you have a Makefile with appropriate commands for executing the script. If you’re not using a Makefile, you can directly run the script using Python:
 
     ```bash
-    python openai_chat.py
+    python src/main.py
     ```
 
     or

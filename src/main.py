@@ -7,7 +7,7 @@ from prompt_creator import choose_prompt
 from chat_handler import chat
 
 # Initialization
-config_file = Path.cwd() / "config.cfg"
+config_file = Path.cwd() / "config" / "config.cfg"
 config = configparser.ConfigParser()
 config.read(config_file)
 

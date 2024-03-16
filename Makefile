@@ -10,8 +10,8 @@ $(VENV)/bin/activate: requirements.txt
 	$(PIP) install -r requirements.txt
 
 run: $(VENV)/bin/activate
-	@$(PYTHON) openai_chat.py
-
+	@$(PYTHON) src/main.py
+test: $(VEN)
 ## Clean all the venv content, so you could restart the building from a clean environment
 clean:
 	rm -fr venv
