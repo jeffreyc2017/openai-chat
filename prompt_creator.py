@@ -10,7 +10,10 @@ def choose_prompt():
         "You are a traveler sharing stories."
     ]
 
-    print("Choose a conversation starter:")
+    print("""
+---------------------------
+    Choose a Conversation Starter
+---------------------------""")
     for i, prompt in enumerate(prompts, start=1):
         print(f"{i}. {prompt}")
     print("Select a number or press enter for a random start.")

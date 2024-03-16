@@ -19,7 +19,9 @@ def chat(system_prompt, model):
     OpenAI's chat completion API to generate a response based on the provided model.
     The conversation starts with the system stating "You are a good friend.".
     """
-    print("\nEnter your message. Press enter twice to send. Type 'exit' to quit.")
+    print("""--------------------------------
+Enter your message. Press enter twice to send. Type 'exit' to quit.
+""")
 
     while True:
         print("\nyou: ", end="")
@@ -39,7 +41,7 @@ def chat(system_prompt, model):
             {"role": "user", "content": message},
         ]
 
-        print(f"{num_tokens_from_messages(messages, model)} prompt tokens counted.")
+        num_tokens = num_tokens_from_messages(messages, model)
         print("AI is thinking...", end="", flush=True)
 
         try:
@@ -52,12 +54,12 @@ def chat(system_prompt, model):
                 frequency_penalty=0,
                 presence_penalty=0,
             )
-            print("\rAI: ", end="")  # Use carriage return to overwrite "AI is thinking..." message
+            print("\r-------------------------\nAI: ", end="")  # Use carriage return to overwrite "AI is thinking..." message
 
             for choice in response.choices:
                 print(choice.message.content)
 
-            print(f'{response.usage.prompt_tokens} prompt tokens counted by the OpenAI API.')
+            print(f'-------------------------\nToken count for this interaction: {num_tokens} (calculated), {response.usage.prompt_tokens} (API reported).')
         except Exception as e:
             print(f"\nAn error occurred: {e}")
             continue

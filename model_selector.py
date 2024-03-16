@@ -18,13 +18,19 @@ def choose_model():
     Allows the user to select a model from the available list.
     """
     models = list_models()
-    print("Available models:")
+
+    print(
+"""
+-------------------------
+     Available Models
+-------------------------"""
+    )
     for i, model in enumerate(models, start=1):
         print(f"{i}. {model}")
-    print("Select a number to choose a model:")
+    print("-------------------------")
 
     while True:
-        choice = input()
+        choice = input("Select a number to choose a model:")
         try:
             chosen_index = int(choice) - 1
             if chosen_index in range(len(models)):

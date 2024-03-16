@@ -4,15 +4,15 @@ A Python script that interacts with the OpenAI API to generate conversational AI
 
 ## Features(to be implemented)
 
-- Create prompt
-- Select model
-- Access website
-- Read files
-- Count tokens
+- [x] Create prompt :tada:
+- [x] Select model :tada:
+- [ ] Access website
+- [ ] Read files
+- [x] Count tokens :tada:
 
     includes the use of tiktoken for accurate token counting, allowing you to estimate the number of tokens used by your prompts and responses. This addition is crucial for managing API costs effectively, especially given the diverse pricing models based on token usage.
 
-- Calculate cost based on tokens and model
+- [x] Calculate cost based on tokens and model :tada:
 
     [OpenAI API pricing](https://openai.com/pricing)
 
