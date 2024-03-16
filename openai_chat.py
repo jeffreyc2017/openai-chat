@@ -19,6 +19,10 @@ def chat(system_prompt, model):
     OpenAI's chat completion API to generate a response based on the provided model.
     The conversation starts with the system stating "You are a good friend.".
     """
+
+    total_tokens = 0
+    total_response_tokens = 0
+
     print("""--------------------------------
 Enter your message. Press enter twice to send. Type 'exit' to quit.
 """)
@@ -29,6 +33,7 @@ Enter your message. Press enter twice to send. Type 'exit' to quit.
         while (line := input()) != "":
             if line.lower() == "exit":  # Allow the user to exit the chat
                 print("Exiting chat. Goodbye!")
+                print(f'Total tokens: {total_tokens} (calculated), {total_response_tokens} (API reported).')
                 return
             user_input.append(line)
 
@@ -42,6 +47,7 @@ Enter your message. Press enter twice to send. Type 'exit' to quit.
         ]
 
         num_tokens = num_tokens_from_messages(messages, model)
+        total_tokens += num_tokens
         print("AI is thinking...", end="", flush=True)
 
         try:
@@ -59,7 +65,9 @@ Enter your message. Press enter twice to send. Type 'exit' to quit.
             for choice in response.choices:
                 print(choice.message.content)
 
-            print(f'-------------------------\nToken count for this interaction: {num_tokens} (calculated), {response.usage.prompt_tokens} (API reported).')
+            response_tokens = response.usage.prompt_tokens
+            total_response_tokens += response_tokens
+            print(f'-------------------------\nToken count for this interaction: {num_tokens} (calculated), {response_tokens} (API reported).')
         except Exception as e:
             print(f"\nAn error occurred: {e}")
             continue

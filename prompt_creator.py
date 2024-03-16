@@ -16,6 +16,7 @@ def choose_prompt():
 ---------------------------""")
     for i, prompt in enumerate(prompts, start=1):
         print(f"{i}. {prompt}")
+    print("---------------------------")
     print("Select a number or press enter for a random start.")
 
     choice = input("Your choice: ")
