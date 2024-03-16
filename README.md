@@ -2,7 +2,7 @@
 
 A Python script that interacts with the OpenAI API to generate conversational AI responses based on user input. It simulates a chat environment where the AI responds thoughtfully to each message.
 
-## Features(to be implemented)
+## Features
 
 - [x] Create prompt :tada:
 - [x] Select model :tada:
@@ -10,11 +10,11 @@ A Python script that interacts with the OpenAI API to generate conversational AI
 - [ ] Read files
 - [x] Count tokens :tada:
 
-    includes the use of tiktoken for accurate token counting, allowing you to estimate the number of tokens used by your prompts and responses. This addition is crucial for managing API costs effectively, especially given the diverse pricing models based on token usage.
+    Utilizes `tiktoken` for accurate token counting, enabling estimation of the number of tokens used by prompts and responses. This is vital for effectively managing API costs, especially given the diverse pricing models based on token usage.
 
 - [x] Calculate cost based on tokens and model :tada:
 
-    [OpenAI API pricing](https://openai.com/pricing)
+    See [OpenAI API pricing](https://openai.com/pricing) for more details.
 
 ## Getting Started
 
@@ -22,14 +22,13 @@ This script leverages the OpenAI API to generate responses, creating an interact
 
 ## Prerequisites
 
-- **Python 3:** Ensure Python 3.6 or newer is installed on your system. You can download it from [the official Python website](https://www.python.org/downloads/).
-- **OpenAI API Key:** A valid OpenAI API key is required to authenticate requests. Obtain one by signing up at [OpenAI's API keys page](https://platform.openai.com/api-keys).
-- **Configuration File:** The script requires a `config.cfg` file located in the same directory as the script itself. This file stores your API key and model preference. Create the file with the following content, replacing `YOUR_API_KEY` and `YOUR_MODEL` with your actual API key and model name:
+- **Python 3:** Ensure Python 3.6 or newer is installed on your system. Download it from [the official Python website](https://www.python.org/downloads/).
+- **OpenAI API Key:** A valid OpenAI API key is required for authentication. Obtain one by signing up at [OpenAI's API keys page](https://platform.openai.com/api-keys).
+- **Configuration File:** A `config.cfg` file in the same directory as the script is needed. This file stores your API key. Replace `YOUR_API_KEY` with your actual API key:
 
 ```ini
 [openai]
 api_key = YOUR_API_KEY
-model = YOUR_MODEL
 ```
 
 ## Installation
@@ -37,7 +36,13 @@ model = YOUR_MODEL
 Before running the script, you need to install the OpenAI Python package. You can do this by running the following command in your terminal:
 
 ```bash
-pip install openai
+pip install openai tiktoken
+```
+
+or
+
+```bash
+make
 ```
 
 ## Running the Script
@@ -51,9 +56,37 @@ To run the script, follow these steps:
     python openai_chat.py
     ```
 
+    or
+
+    ```bash
+    make run
+    ```
+
 3.	Upon running, you’ll be prompted to enter your message. Type your message and press enter. To send multiple lines, press enter after each line. When finished, press enter twice to send your message to the AI.
 4.	The script will then process your input, displaying “AI is thinking…” while generating a response. Once completed, it will display the AI’s response.
 5.	To exit the chat, type exit at the prompt.
+
+## Contributing
+
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+Distributed under the MIT License. See (LICENSE)[LICENSE] for more information.
+
+## Author
+
+- **Jeffrey Cai** - *Initial work* - [jeffreyc2017](https://github.com/jeffreyc2017)
+
+## Acknowledgments
+
+- Hat tip to anyone whose code was used
 
 
 Enjoy chatting with AI!
