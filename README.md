@@ -9,6 +9,9 @@ A Python script that interacts with the OpenAI API to generate conversational AI
 - Access website
 - Read files
 - Count tokens
+
+    includes the use of tiktoken for accurate token counting, allowing you to estimate the number of tokens used by your prompts and responses. This addition is crucial for managing API costs effectively, especially given the diverse pricing models based on token usage.
+
 - Calculate cost based on tokens and model
 
 ## Getting Started

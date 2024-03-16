@@ -3,6 +3,8 @@ from pathlib import Path
 import configparser
 from openai import OpenAI
 import tiktoken
+from model_selector import choose_model
+
 
 # Initialization
 config_file = Path.cwd() / "config.cfg"
@@ -10,7 +12,6 @@ config = configparser.ConfigParser()
 config.read(config_file)
 
 openai_client = OpenAI(api_key=config["openai"]["api_key"])
-model = config["openai"]["model"]
 
 def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613"):
     """
@@ -80,7 +81,7 @@ def choose_prompt():
         print("Invalid choice, proceeding with a random prompt.")
         return "You are an assistant."
 
-def chat(system_prompt):
+def chat(system_prompt, model):
     """
     This function continuously accepts user input, breaks it into lines, and then sends it to
     OpenAI's chat completion API to generate a response based on the provided model.
@@ -128,6 +129,10 @@ def chat(system_prompt):
             print(f"\nAn error occurred: {e}")
             continue
 
-if __name__ == "__main__":
+def main():
+    model = choose_model()
     system_prompt = choose_prompt()
-    chat(system_prompt)
+    chat(system_prompt, model)
+
+if __name__ == "__main__":
+    main()
