@@ -1,5 +1,7 @@
 from openai_client_handler import get_openai_client
 import json
+import requests
+
 
 tools = [
     {
@@ -19,8 +21,28 @@ tools = [
                 "required": ["location"],
             },
         },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_date",
+            "description": "Get the current date and time",
+            "parameters": {
+                "type": "object",
+                "properties": {  
+                },
+            },
+        },
     }
 ]
+
+def get_current_date():
+    from datetime import datetime
+
+    # Get the current date
+    return datetime.now()
+
+
 
 # Example dummy function hard coded to return the same weather
 # In production, this could be your backend API or an external API
@@ -61,16 +83,14 @@ def get_current_weather(location, unit="imperial"):
         print(f"Error fetching weather data: {e}")
         return json.dumps({"location": location, "temperature": "unknown", "unit": unit})
 
-# Example usage
-if __name__ == "__main__":
-    print(get_current_weather("Tokyo,JP", unit="metric"))  # For temperature in Celsius
+available_functions = {
+    "get_current_weather": get_current_weather,
+    "get_current_date": get_current_date,
+}
 
 def function_call(model, messages, response_message):
     # Step 3: call the function
     # Note: the JSON response may not always be valid; be sure to handle errors
-    available_functions = {
-        "get_current_weather": get_current_weather,
-    }  # only one function in this example, but you can have multiple
     messages.append(response_message)  # extend conversation with assistant's reply
     # Step 4: send the info for each function call and function response to the model
     tool_calls = response_message.tool_calls
@@ -113,5 +133,9 @@ def run_conversation(model):
         return function_call(model, messages, response_message)
 
 if __name__ == "__main__":
-    response = run_conversation("gpt-3.5-turbo")
-    print(response.choices[0].message.content)
+    # response = run_conversation("gpt-3.5-turbo")
+    # print(response.choices[0].message.content)
+
+    # print(get_current_weather("Tokyo,JP", unit="metric"))  # For temperature in Celsius
+
+    print(get_current_date())
