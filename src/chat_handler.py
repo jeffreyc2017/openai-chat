@@ -1,20 +1,7 @@
-from pathlib import Path
-import configparser
-from openai import OpenAI
-
 from prompt_creator import format_user_input
 from token_counter import num_tokens_from_messages
+from openai_client_handler import get_openai_client
 
-_openai_client = None
-
-def get_openai_client():
-    global _openai_client
-    if _openai_client is None:
-        config_file = Path.cwd() / "config" / "config.cfg"
-        config = configparser.ConfigParser()
-        config.read(config_file)
-        _openai_client = OpenAI(api_key=config["openai"]["api_key"])
-    return _openai_client
 
 def chat(system_prompt, model):
     """
@@ -28,11 +15,8 @@ def chat(system_prompt, model):
     total_prompt_tokens = 0
     total_completion_tokens = 0
 
-    system_message_set = False
-
-    print("""--------------------------------
-Enter your message. Press enter twice to send. Type 'exit' to quit.
-""")
+    print("--------------------------------")
+    print("Enter your message. Press enter twice to send. Type 'exit' to quit.")
 
     while True:
         print("\nyou: ", end="")
@@ -49,13 +33,7 @@ Enter your message. Press enter twice to send. Type 'exit' to quit.
 
         message = format_user_input(user_input)
         messages = []
-
-        # Set the system's role and message only once at the beginning or when necessary
-        if not system_message_set:
-            messages.append({"role": "system", "content": system_prompt})
-            system_message_set = True
-        
-        # Always append the user's message
+        messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": message})
 
         num_prompt_tokens = num_tokens_from_messages(messages, model)
@@ -79,7 +57,9 @@ Enter your message. Press enter twice to send. Type 'exit' to quit.
                 frequency_penalty=0,
                 presence_penalty=0,
             )
-            print("\r-------------------------\nAI: ", end="")  # Use carriage return to overwrite "AI is thinking..." message
+            print("\r")  # Use carriage return to overwrite "AI is thinking..." message
+            print("-------------------------")
+            print("AI: ", end="")
             if stream:
                 for chunk in response:
                     if chunk.choices[0].delta.content is not None:
@@ -94,7 +74,8 @@ Enter your message. Press enter twice to send. Type 'exit' to quit.
                 total_completion_tokens += response.usage.completion_tokens
                 total_tokens += response.usage.total_tokens
             
-            print(f'-------------------------\nToken count for this interaction: total tokens: {response.usage.total_tokens}, prompt tokens: {response.usage.prompt_tokens}, completion tokens: {response.usage.completion_tokens}.')
+            print("-------------------------")
+            print(f'Token count for this interaction: total tokens: {response.usage.total_tokens}, prompt tokens: {response.usage.prompt_tokens}, completion tokens: {response.usage.completion_tokens}.')
         except Exception as e:
             print(f"\nAn error occurred: {e}")
             continue

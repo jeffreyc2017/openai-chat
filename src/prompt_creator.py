@@ -42,6 +42,7 @@ def choose_prompt():
             "Offer explanations for common English language mistakes.",
             "Provide feedback on language use and suggest improvements."
         ],
+        "Website Content Analysis": "Analyze content from a website URL.",
     }
 
     # Print categories
@@ -65,6 +66,10 @@ def choose_prompt():
     if chosen_category == "Custom":
         custom_prompt = input("Enter your own system prompt: ")
         return custom_prompt
+    
+    if chosen_category == "Website Content Analysis":
+        url = input("Enter the website URL to analyze: ")
+        return {"type": "website_analysis", "url": url}
 
     # Print prompts within the selected category
     print(f"\n{chosen_category} Prompts:")
