@@ -44,12 +44,51 @@ def chat(system_prompt, model):
 
         print("AI is thinking...", end="", flush=True)
 
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_current_time",
+                    "description": "Get the current time",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "location": {
+                                "type": "string",
+                                "description": "The city and state, e.g. San Francisco, CA",
+                            },
+                        },
+                        "required": ["location"],
+                    },
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_current_weather",
+                    "description": "Get the current weather in a given location",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "location": {
+                                "type": "string",
+                                "description": "The city and state, e.g. San Francisco, CA",
+                            },
+                            "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]},
+                        },
+                        "required": ["location"],
+                    },
+                }
+            }
+        ]
+
         stream = False
         
         try:
             response = openai_client.chat.completions.create(
                 model=model,
                 messages=messages,
+                tools=tools,
                 stream=stream,
                 temperature=1,
                 max_tokens=1024,
@@ -60,6 +99,8 @@ def chat(system_prompt, model):
             print("\r")  # Use carriage return to overwrite "AI is thinking..." message
             print("-------------------------")
             print("AI: ", end="")
+
+            print(response)
             if stream:
                 for chunk in response:
                     if chunk.choices[0].delta.content is not None:
