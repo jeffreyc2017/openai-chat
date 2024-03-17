@@ -1,7 +1,7 @@
 from prompt_creator import format_user_input
 from token_counter import num_tokens_from_messages
 from openai_client_handler import get_openai_client
-
+from function_call import function_call, tools
 
 def chat(system_prompt, model):
     """
@@ -44,44 +44,6 @@ def chat(system_prompt, model):
 
         print("AI is thinking...", end="", flush=True)
 
-        tools = [
-            {
-                "type": "function",
-                "function": {
-                    "name": "get_current_time",
-                    "description": "Get the current time",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "location": {
-                                "type": "string",
-                                "description": "The city and state, e.g. San Francisco, CA",
-                            },
-                        },
-                        "required": ["location"],
-                    },
-                }
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "get_current_weather",
-                    "description": "Get the current weather in a given location",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "location": {
-                                "type": "string",
-                                "description": "The city and state, e.g. San Francisco, CA",
-                            },
-                            "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]},
-                        },
-                        "required": ["location"],
-                    },
-                }
-            }
-        ]
-
         stream = False
         
         try:
@@ -96,11 +58,10 @@ def chat(system_prompt, model):
                 frequency_penalty=0,
                 presence_penalty=0,
             )
-            print("\r")  # Use carriage return to overwrite "AI is thinking..." message
-            print("-------------------------")
+            print("\r-------------------------")  # Use carriage return to overwrite "AI is thinking..." message
             print("AI: ", end="")
 
-            print(response)
+            # print(response)
             if stream:
                 for chunk in response:
                     if chunk.choices[0].delta.content is not None:
@@ -109,12 +70,20 @@ def chat(system_prompt, model):
                 total_prompt_tokens += num_prompt_tokens
             else:
                 for choice in response.choices:
-                    print(choice.message.content)
+                    response_message = choice.message
+                    # if response_message:
+                    #     print(response_message)
+                    tool_calls = response_message.tool_calls
+                    if tool_calls:
+                        second_response = function_call(model, messages, response_message)
+                        print(second_response.choices[0].message.content)
+                    else:
+                        print(response_message.content)
 
                 total_prompt_tokens += response.usage.prompt_tokens
                 total_completion_tokens += response.usage.completion_tokens
                 total_tokens += response.usage.total_tokens
-            
+
             print("-------------------------")
             print(f'Token count for this interaction: total tokens: {response.usage.total_tokens}, prompt tokens: {response.usage.prompt_tokens}, completion tokens: {response.usage.completion_tokens}.')
         except Exception as e:
