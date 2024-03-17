@@ -20,12 +20,13 @@ def chat(system_prompt, model):
     """
     This function continuously accepts user input, breaks it into lines, and then sends it to
     OpenAI's chat completion API to generate a response based on the provided model.
-    The conversation starts with the system stating "You are a good friend.".
+    The conversation starts with the system initially stating the system_prompt only once.
+    Warns the user if the number of tokens in a request exceeds 1000.
     """
-
     openai_client = get_openai_client()
     total_tokens = 0
     total_response_tokens = 0
+    system_message_set = False
 
     print("""--------------------------------
 Enter your message. Press enter twice to send. Type 'exit' to quit.
@@ -45,13 +46,23 @@ Enter your message. Press enter twice to send. Type 'exit' to quit.
             continue
 
         message = format_user_input(user_input)
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": message},
-        ]
+        messages = []
+
+        # Set the system's role and message only once at the beginning or when necessary
+        if not system_message_set:
+            messages.append({"role": "system", "content": system_prompt})
+            system_message_set = True
+        
+        # Always append the user's message
+        messages.append({"role": "user", "content": message})
 
         num_tokens = num_tokens_from_messages(messages, model)
         total_tokens += num_tokens
+        
+        # Warn the user if the number of tokens for the current request exceeds 1000
+        if num_tokens > 1000:
+            print("Warning: Your request exceeds 1000 tokens, which may result in higher costs.")
+
         print("AI is thinking...", end="", flush=True)
 
         try:
