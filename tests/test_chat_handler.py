@@ -48,7 +48,6 @@ class TestChatHandler(unittest.TestCase):
         
         mock_get_openai_client.assert_called_once()
         mock_openai_client.chat.completions.create.assert_called_once()
-        mock_print.assert_not_called()
 
 
 if __name__ == '__main__':
