@@ -25,7 +25,9 @@ def chat(system_prompt, model):
     """
     openai_client = get_openai_client()
     total_tokens = 0
-    total_response_tokens = 0
+    total_prompt_tokens = 0
+    total_completion_tokens = 0
+
     system_message_set = False
 
     print("""--------------------------------
@@ -38,7 +40,7 @@ Enter your message. Press enter twice to send. Type 'exit' to quit.
         while (line := input()) != "":
             if line.lower() == "exit":  # Allow the user to exit the chat
                 print("Exiting chat. Goodbye!")
-                print(f'Total tokens: {total_tokens} (calculated), {total_response_tokens} (API reported).')
+                print(f'Total tokens: {total_tokens}, total prompt tokens: {total_prompt_tokens}, total completion tokens: {total_completion_tokens}.')
                 return
             user_input.append(line)
 
@@ -56,19 +58,21 @@ Enter your message. Press enter twice to send. Type 'exit' to quit.
         # Always append the user's message
         messages.append({"role": "user", "content": message})
 
-        num_tokens = num_tokens_from_messages(messages, model)
-        total_tokens += num_tokens
+        num_prompt_tokens = num_tokens_from_messages(messages, model)
         
         # Warn the user if the number of tokens for the current request exceeds 1000
-        if num_tokens > 1000:
+        if num_prompt_tokens > 1000:
             print("Warning: Your request exceeds 1000 tokens, which may result in higher costs.")
 
         print("AI is thinking...", end="", flush=True)
 
+        stream = False
+        
         try:
             response = openai_client.chat.completions.create(
                 model=model,
                 messages=messages,
+                stream=stream,
                 temperature=1,
                 max_tokens=1024,
                 top_p=1,
@@ -76,13 +80,21 @@ Enter your message. Press enter twice to send. Type 'exit' to quit.
                 presence_penalty=0,
             )
             print("\r-------------------------\nAI: ", end="")  # Use carriage return to overwrite "AI is thinking..." message
+            if stream:
+                for chunk in response:
+                    if chunk.choices[0].delta.content is not None:
+                        print(chunk.choices[0].delta.content, end="")
 
-            for choice in response.choices:
-                print(choice.message.content)
+                total_prompt_tokens += num_prompt_tokens
+            else:
+                for choice in response.choices:
+                    print(choice.message.content)
 
-            response_tokens = response.usage.prompt_tokens
-            total_response_tokens += response_tokens
-            print(f'-------------------------\nToken count for this interaction: {num_tokens} (calculated), {response_tokens} (API reported).')
+                total_prompt_tokens += response.usage.prompt_tokens
+                total_completion_tokens += response.usage.completion_tokens
+                total_tokens += response.usage.total_tokens
+            
+            print(f'-------------------------\nToken count for this interaction: total tokens: {response.usage.total_tokens}, prompt tokens: {response.usage.prompt_tokens}, completion tokens: {response.usage.completion_tokens}.')
         except Exception as e:
             print(f"\nAn error occurred: {e}")
             continue

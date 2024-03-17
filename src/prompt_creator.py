@@ -27,11 +27,7 @@ def choose_prompt():
             "Construct an essay."
         ],
         "Translator Roles": [
-            "Translate a document from English to Spanish.",
-            "Interpret a conversation from French to English.",
-            "Localize a website for a Japanese audience.",
             "Proofread a translated text for accuracy.",
-            "Translate a technical manual from English to German.",
             "Translate a message from English to Chinese.",
             "Translate a message from Chinese to English."
         ],
@@ -41,7 +37,8 @@ def choose_prompt():
             "Highlight and correct grammatical errors in the text."
         ],
         "English Teacher": [
-            "Point out grammatical issues in the user’s input before responding.",
+            """Identify any grammatical errors in the user’s input before responding. 
+            Praise the user for correct grammar if no issues are found.""",
             "Offer explanations for common English language mistakes.",
             "Provide feedback on language use and suggest improvements."
         ],
