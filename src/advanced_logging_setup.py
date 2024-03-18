@@ -1,4 +1,9 @@
 import logging.config
+import os
+
+log_directory = "./logs"
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)
 
 LOGGING_CONFIG = {
     'version': 1,
@@ -17,7 +22,7 @@ LOGGING_CONFIG = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'app.log',
+            'filename': './logs/app.log',
             'formatter': 'detailed',
         },
     },
