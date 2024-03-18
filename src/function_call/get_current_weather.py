@@ -62,3 +62,6 @@ def get_current_weather(function_args):
 #     except requests.RequestException as e:
 #         print(f"Error fetching weather data: {e}")
 #         return json.dumps({"location": location, "temperature": "unknown", "unit": unit})
+
+if __name__ == "__main__":
+    print(get_current_weather({"location":"Tokyo,JP", "unit": "C"}))  # For temperature in Celsius

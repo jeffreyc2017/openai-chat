@@ -4,9 +4,9 @@ See https://platform.openai.com/docs/guides/function-calling
 
 import json
 from openai_client_handler import get_openai_client
-from function_call.get_current_date import get_current_date, tool_get_current_date
-from function_call.get_current_weather import get_current_weather, tool_get_current_weather
-from function_call.get_website_content import get_website_content, tool_get_website_content
+from .get_current_date import get_current_date, tool_get_current_date
+from .get_current_weather import get_current_weather, tool_get_current_weather
+from .get_website_content import get_website_content, tool_get_website_content
 
 
 tools = [
@@ -60,7 +60,3 @@ def run_conversation(model):
 if __name__ == "__main__":
     response = run_conversation("gpt-3.5-turbo")
     print(response.choices[0].message.content)
-
-    print(get_current_weather("Tokyo,JP", unit="metric"))  # For temperature in Celsius
-
-    print(get_current_date())

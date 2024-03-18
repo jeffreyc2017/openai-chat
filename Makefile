@@ -13,6 +13,19 @@ $(VENV)/bin/activate: requirements.txt
 run: $(VENV)/bin/activate
 	@$(PYTHON) src/main.py
 
+run-modules: $(VENV)/bin/activate
+	@echo --function_call--
+	@$(PYTHON) -m src.function_call.function_call
+	@echo
+	@echo --get_current_date--
+	@$(PYTHON) -m src.function_call.get_current_date
+	@echo
+	@echo --get_current_weather--
+	@$(PYTHON) -m src.function_call.get_current_weather
+	@echo
+	@echo --get_website_content--
+	@$(PYTHON) -m src.function_call.get_website_content
+
 test: $(VENV)/bin/activate
 	@$(PYTHON) -m unittest discover -s tests
 
