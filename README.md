@@ -6,8 +6,30 @@ A Python script that interacts with the OpenAI API to generate conversational AI
 
 - [x] Create prompt :tada:
 - [x] Select model :tada:
-- [x] Access website :tada:
-- [ ] Read files
+- [ ] Function call
+    - [x] Access website :tada:
+
+        This is a function call.
+
+        Usage:
+
+        You: Check the content of the webpage: example.com (this will parse the html text within the page)
+
+        You: Check the full content of the webpage: example.com (this will grad all the content including the js)
+
+    - [x] Get current date and time :tada:
+
+        A function call to get the time and date based on the time zone.
+
+    - [ ] Get current weather
+
+        A function call to get the current weather based on the location.
+        Currently it's a dummy function. Fully implementation needs to register a weather API to fetch the weather data.
+
+    - [ ] Read files
+
+        A function call.
+
 - [x] Count tokens :tada:
 
     Utilizes `tiktoken` for accurate token counting, enabling estimation of the number of tokens used by prompts and responses. This is vital for effectively managing API costs, especially given the diverse pricing models based on token usage.
@@ -36,7 +58,7 @@ api_key = YOUR_API_KEY
 Before running the script, you need to install the OpenAI Python package. You can do this by running the following command in your terminal:
 
 ```bash
-pip install openai tiktoken
+pip install -r requirements.txt
 ```
 
 or
