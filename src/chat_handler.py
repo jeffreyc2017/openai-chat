@@ -3,6 +3,8 @@ from token_counter import num_tokens_from_messages
 from openai_client_handler import get_openai_client
 from function_call.function_call import function_call, tools
 import traceback
+from advanced_logging_setup import logger
+
 
 def chat(system_prompt, model):
     """
@@ -37,6 +39,8 @@ def chat(system_prompt, model):
         messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": message})
 
+        logger.debug(messages)
+
         num_prompt_tokens = num_tokens_from_messages(messages, model)
         
         # Warn the user if the number of tokens for the current request exceeds 1000
@@ -61,7 +65,7 @@ def chat(system_prompt, model):
             )
 
             print("\r-------------------------")  # Use carriage return to overwrite "AI is thinking..." message
-            print("[DEBUG]", response)
+            logger.debug(response)
             print("AI: ", end="")
 
             if stream:

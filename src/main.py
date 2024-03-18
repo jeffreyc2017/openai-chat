@@ -4,7 +4,9 @@ from chat_handler import chat
 
 
 def main():
-    chat(system_prompt=choose_prompt(), model=choose_model())
+    model = choose_model()
+    system_prompt = choose_prompt()
+    chat(system_prompt=system_prompt, model=model)
 
 if __name__ == "__main__":
     main()
