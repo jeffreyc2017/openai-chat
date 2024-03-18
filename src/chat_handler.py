@@ -28,7 +28,10 @@ def chat(system_prompt, model):
             if line.lower() == "exit":  # Allow the user to exit the chat
                 print("Exiting chat. Goodbye!")
                 print(f'Total tokens: {total_tokens}, total prompt tokens: {total_prompt_tokens}, total completion tokens: {total_completion_tokens}.')
-                return
+                return False
+            elif line.lower() == "restart":
+                return True
+            
             user_input.append(line)
 
         if not user_input:  # Skip empty messages
@@ -93,4 +96,5 @@ def chat(system_prompt, model):
         except Exception as e:
             print(f"\nAn error occurred: {e}")
             traceback.print_exc()
+            logger.error(traceback.format_exc())
             continue

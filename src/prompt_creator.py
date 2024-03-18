@@ -20,8 +20,8 @@ categories = {
         "Translate a message from Chinese to English."
     ],
     "English Language Assistance": [
-        "Correct syntax and spelling errors in the provided content. Output the corrected content first, followed by a bullet-point list explaining each correction.",
-        "Revise the provided content for clarity and coherence. Then, list the reasons for each revision in bullet points.",
+        "Correct syntax and spelling errors in the user's input. Output the corrected content first, followed by a bullet-point list explaining each correction.",
+        "Revise the user's provided content for clarity and coherence. Then, list the reasons for each revision in bullet points.",
         "Identify any grammatical errors in the user's input before responding. If there are no issues, praise the user for correct grammar. Then, continue with a normal response."
     ],
 }
@@ -52,10 +52,6 @@ def choose_prompt():
     if chosen_category == "Custom":
         custom_prompt = input("Enter your own system prompt: ")
         return custom_prompt
-    
-    if chosen_category == "Website Content Analysis":
-        url = input("Enter the website URL to analyze: ")
-        return {"type": "website_analysis", "url": url}
 
     # Print prompts within the selected category
     print(f"\n{chosen_category} Prompts:")
