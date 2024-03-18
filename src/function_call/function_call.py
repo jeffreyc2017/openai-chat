@@ -6,16 +6,19 @@ import json
 from openai_client_handler import get_openai_client
 from function_call.get_current_date import get_current_date, tool_get_current_date
 from function_call.get_current_weather import get_current_weather, tool_get_current_weather
+from function_call.get_website_content import get_website_content, tool_get_website_content
 
 
 tools = [
     tool_get_current_weather,
     tool_get_current_date,
+    tool_get_website_content
 ]
 
 available_functions = {
     "get_current_weather": get_current_weather,
     "get_current_date": get_current_date,
+    "get_website_content": get_website_content,
 }
 
 def function_call(model, messages, response_message):

@@ -6,7 +6,7 @@ A Python script that interacts with the OpenAI API to generate conversational AI
 
 - [x] Create prompt :tada:
 - [x] Select model :tada:
-- [ ] Access website
+- [x] Access website :tada:
 - [ ] Read files
 - [x] Count tokens :tada:
 

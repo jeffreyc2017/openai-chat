@@ -16,7 +16,7 @@ class TestPromptCreator(unittest.TestCase):
         """
         Test choosing a valid category and prompt.
         """
-        expected_prompt = "Learn about mathematics concepts."
+        expected_prompt = "Act as an old friend in conversation."
         prompt = choose_prompt()
         self.assertEqual(prompt, expected_prompt)
 

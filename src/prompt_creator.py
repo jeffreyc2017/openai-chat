@@ -1,50 +1,36 @@
+categories = {
+    "Custom": "Enter your own prompt for the system role.",
+    "Chat": [
+        "Act as an old friend in conversation.",
+    ],
+    "Entertainment": [
+        "Respond to each of my inputs with a random joke related to the topic.",
+        "Respond to each of my inputs with an interesting fact relevant to the topic."
+    ],
+    "Writing & Content Creation": [
+        "Generate content for a tweet.",
+        "Compose a blog post on a given topic.",
+        "Create a README file for a project.",
+        "Write an article on a specified subject.",
+        "Construct an essay based on a prompt."
+    ],
+    "Translator Roles": [
+        "Proofread a translated text to ensure accuracy.",
+        "Translate a message from English to Chinese.",
+        "Translate a message from Chinese to English."
+    ],
+    "English Language Assistance": [
+        "Correct syntax and spelling errors in the provided content. Output the corrected content first, followed by a bullet-point list explaining each correction.",
+        "Revise the provided content for clarity and coherence. Then, list the reasons for each revision in bullet points.",
+        "Identify any grammatical errors in the user's input before responding. If there are no issues, praise the user for correct grammar. Then, continue with a normal response."
+    ],
+}
+
 def choose_prompt():
     """
     Allows the user to select a system prompt from a predefined, categorized list or enter their own.
     """
-    categories = {
-        "Custom": "Enter your own prompt.",
-        "Education": [
-            "Learn about mathematics concepts.",
-            "Explore scientific phenomena.",
-            "Practice a new language."
-        ],
-        "Entertainment": [
-            "Hear a random joke.",
-            "Listen to a travel story.",
-            "Learn an interesting fact."
-        ],
-        "Professional Assistance": [
-            "Assist with programming tasks.",
-            "Help with Site Reliability Engineering (SRE) issues.",
-            "Guide on DevOps best practices."
-        ],
-        "Writing & Content Creation": [
-            "Generate a tweet for Twitter.",
-            "Compose a blog post.",
-            "Craft a README file.",
-            "Write an article.",
-            "Construct an essay."
-        ],
-        "Translator Roles": [
-            "Proofread a translated text for accuracy.",
-            "Translate a message from English to Chinese.",
-            "Translate a message from Chinese to English."
-        ],
-        "English Language Assistance": [
-            "Revise the content to improve clarity and coherence.",
-            "Fix syntax and spelling issues within the provided content.",
-            "Highlight and correct grammatical errors in the text."
-        ],
-        "English Teacher": [
-            """Identify any grammatical errors in the user’s input before responding. 
-            Praise the user for correct grammar if no issues are found.""",
-            "Offer explanations for common English language mistakes.",
-            "Provide feedback on language use and suggest improvements."
-        ],
-        "Website Content Analysis": "Analyze content from a website URL.",
-    }
-
+    
     # Print categories
     print("\nChoose a category:")
     for i, category in enumerate(categories.keys(), start=1):

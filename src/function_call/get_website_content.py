@@ -2,8 +2,36 @@ import requests
 from bs4 import BeautifulSoup
 from openai_client_handler import get_openai_client
 
+tool_get_website_content = {
+    "type": "function",
+    "function": {
+        "name": "get_website_content",
+        "description": "Get the website content",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "description": "The full URL of a website with scheme.",
+                },
+                "full_content": {
+                    "type": "boolean",
+                    "description": "The boolean value True or False."
+                }
+            },
+        },
+    },
+}
 
-def fetch_website_content(url):
+def get_website_content(args):
+    url = args.get("url", None)
+    if url:
+        full_content = args.get("full_content", False)
+        return fetch_website_content(url, full_content)
+
+    return ""
+
+def fetch_website_content(url, full_content=False):
     """
     Fetches and returns the text content from a website URL.
     """
@@ -14,6 +42,9 @@ def fetch_website_content(url):
     try:
         response = requests.get(url)
         if response.status_code == 200:
+            if full_content:
+                return response.text
+            
             soup = BeautifulSoup(response.text, 'html.parser')
             # Extract text from the HTML content. Adjust as necessary.
             text = ' '.join(soup.stripped_strings)

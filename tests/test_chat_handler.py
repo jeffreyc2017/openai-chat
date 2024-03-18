@@ -6,18 +6,19 @@ class TestChatHandler(unittest.TestCase):
     @patch('builtins.input', create=True)
     @patch('builtins.print')
     @patch('src.chat_handler.get_openai_client')
-    @patch('src.chat_handler._openai_client')
-    def test_chat_exit_immediately(self, mock_openai_client, mock_get_openai_client, mock_print, mock_input):
+    def test_chat_exit_immediately(self, mock_get_openai_client, mock_print, mock_input):
         """
         Test the chat function for immediate exit scenario without sending any message.
         """
 
         mock_input.side_effect = ['exit']
         chat(system_prompt="You are a good friend.", model="gpt-4")
+        mock_openai_client = MagicMock()
         mock_get_openai_client.assert_called_once_with()
         mock_openai_client.chat.completions.create.assert_not_called()
         expected_calls = [
-            call("--------------------------------\nEnter your message. Press enter twice to send. Type 'exit' to quit.\n"),
+            call("--------------------------------"),
+            call("Enter your message. Press enter twice to send. Type 'exit' to quit."),
             call('\nyou: ', end=''),
             call('Exiting chat. Goodbye!'),
             call('Total tokens: 0, total prompt tokens: 0, total completion tokens: 0.')
@@ -30,8 +31,7 @@ class TestChatHandler(unittest.TestCase):
     @patch('builtins.input', create=True)
     @patch('builtins.print')
     @patch('src.chat_handler.get_openai_client')
-    @patch('src.chat_handler._openai_client')
-    def test_chat_with_single_message(self, mock_openai_client, mock_get_openai_client, mock_print, mock_input):
+    def test_chat_with_single_message(self, mock_get_openai_client, mock_print, mock_input):
         """
         Test the chat function with a single user message, then exiting.
         """
@@ -41,6 +41,7 @@ class TestChatHandler(unittest.TestCase):
         # Mock OpenAI API response
         mock_response = MagicMock()
         mock_response.choices = [MagicMock(message=MagicMock(content="Hello, User!"))]
+        mock_openai_client = MagicMock()
         mock_openai_client.chat.completions.create().return_value = mock_response
         
         # Execute chat with mocked dependencies

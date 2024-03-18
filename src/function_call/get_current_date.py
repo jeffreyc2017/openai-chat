@@ -12,7 +12,7 @@ tool_get_current_date = {
             "properties": {
                 "location": {
                     "type": "string",
-                    "description": "The city and state, e.g. San Francisco, CA",
+                    "description": "The time zone info, e.g. UK/London",
                 },
             },
         },
@@ -34,7 +34,6 @@ def get_current_date(function_args):
         return json.dumps({"datetime": datetime.now().isoformat()})
 
 if __name__ == "__main__":
-    args = {"location": "America/New_York"}
-    print(get_current_date(args))
-    args = {}
-    print(get_current_date(args))
+    print(get_current_date({"location": "America/New_York"}))
+    print(get_current_date({"location": "Europe/London"}))
+    print(get_current_date({}))
