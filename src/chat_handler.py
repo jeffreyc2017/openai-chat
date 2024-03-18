@@ -1,7 +1,8 @@
 from prompt_creator import format_user_input
 from token_counter import num_tokens_from_messages
 from openai_client_handler import get_openai_client
-from function_call import function_call, tools
+from function_call.function_call import function_call, tools
+import traceback
 
 def chat(system_prompt, model):
     """
@@ -58,10 +59,11 @@ def chat(system_prompt, model):
                 frequency_penalty=0,
                 presence_penalty=0,
             )
+
             print("\r-------------------------")  # Use carriage return to overwrite "AI is thinking..." message
+            print("[DEBUG]", response)
             print("AI: ", end="")
 
-            # print(response)
             if stream:
                 for chunk in response:
                     if chunk.choices[0].delta.content is not None:
@@ -71,8 +73,6 @@ def chat(system_prompt, model):
             else:
                 for choice in response.choices:
                     response_message = choice.message
-                    # if response_message:
-                    #     print(response_message)
                     tool_calls = response_message.tool_calls
                     if tool_calls:
                         second_response = function_call(model, messages, response_message)
@@ -88,4 +88,5 @@ def chat(system_prompt, model):
             print(f'Token count for this interaction: total tokens: {response.usage.total_tokens}, prompt tokens: {response.usage.prompt_tokens}, completion tokens: {response.usage.completion_tokens}.')
         except Exception as e:
             print(f"\nAn error occurred: {e}")
+            traceback.print_exc()
             continue
