@@ -44,7 +44,6 @@ def assistant():
         while (line := input()) != "":
             if line.lower() == "exit":  # Allow the user to exit the chat
                 print("Exiting chat. Goodbye!")
-                print(f'Total tokens: {total_tokens}, total prompt tokens: {total_prompt_tokens}, total completion tokens: {total_completion_tokens}.')
                 return
             elif line.lower() == "restart":
                 return
