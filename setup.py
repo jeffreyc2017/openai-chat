@@ -14,6 +14,8 @@ setup(
     install_requires=[
         'openai',
         'tiktoken',
+        'requests',
+        'beautifulsoup4',
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

@@ -35,4 +35,5 @@ clean:
 	rm -fr src/__pycache__
 	rm -fr tests/__pycache__
 	rm -fr src/function_call/__pycache__
+	rm -fr src/assistants/__pycache__
 	rm -fr src/OpenAIChat.egg-info
