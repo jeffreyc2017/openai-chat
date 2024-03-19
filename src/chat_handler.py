@@ -1,10 +1,14 @@
-from prompt_creator import format_user_input
 from token_counter import num_tokens_from_messages
 from openai_client_handler import get_openai_client
 from function_call.function_call import function_call, tools
 import traceback
 from advanced_logging_setup import logger
 
+def format_user_input(user_input):
+    """
+    Formats the user input into a structured message for the OpenAI API.
+    """
+    return "\n".join(user_input)
 
 def chat(system_prompt, model):
     """

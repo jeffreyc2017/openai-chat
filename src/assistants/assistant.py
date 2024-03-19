@@ -1,5 +1,5 @@
 from openai_client_handler import get_openai_client
-from event_handler import EventHandler
+from .event_handler import EventHandler
 
 class OpenAIAssistant:
     def __init__(self, name: str, instructions: str, model: str, streaming_enabled: bool = True):
