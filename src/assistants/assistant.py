@@ -45,7 +45,7 @@ class OpenAIAssistant:
             )
 
             import time
-        
+
             while run.status in ['queued', 'in_progress', 'cancelling']:
                 time.sleep(1)
                 run = self._client.beta.threads.runs.retrieve(
@@ -53,13 +53,15 @@ class OpenAIAssistant:
                     run_id=run.id
                 )
 
-            if run.status == 'completed': 
+            if run.status == 'completed':
                 messages = self._client.beta.threads.messages.list(
                     thread_id=self._thread.id
                 )
                 self._print_sorted_messages(messages)
             else:
                 print(run.status)
+
+            print(run.usage)
 
     def _print_sorted_messages(self, messages):
         print("--------------------")
@@ -77,7 +79,7 @@ if __name__ == "__main__":
         model="gpt-3.5-turbo",
         streaming_enabled=True
     )
-    
+
     assistant.run(
         run_instructions="Please address the user as Jane Doe. The user has a premium account.",
         user_message="I need to solve the equation `3x + 11 = 14`. Can you help me?"
