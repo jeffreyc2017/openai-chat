@@ -10,7 +10,7 @@ def format_user_input(user_input):
     """
     return "\n".join(user_input)
 
-def chat(system_prompt, model):
+def chat(system_prompt, model) -> bool:
     """
     This function continuously accepts user input, breaks it into lines, and then sends it to
     OpenAI's chat completion API to generate a response based on the provided model.

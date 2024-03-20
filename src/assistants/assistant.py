@@ -72,6 +72,37 @@ class OpenAIAssistant:
                 print(content.text.value)
         print("--------------------")
 
+def chat(name, instructions, run_instructions, model) -> bool:
+    from chat_handler import format_user_input
+    assistant = OpenAIAssistant(
+        name=name,
+        instructions=instructions,
+        model=model,
+        streaming_enabled=True
+    )
+
+    while True:
+        print("\nyou: ", end="")
+        user_input = []
+        while (line := input()) != "":
+            if line.lower() == "exit":  # Allow the user to exit the chat
+                print("Exiting chat. Goodbye!")
+                return False
+            elif line.lower() == "restart":
+                return True
+
+            user_input.append(line)
+
+            if not user_input:  # Skip empty messages
+                continue
+
+            message = format_user_input(user_input)
+            assistant.run(
+                run_instructions=run_instructions,
+                user_message=message
+            )
+
+
 if __name__ == "__main__":
     assistant = OpenAIAssistant(
         name="Math Tutor",
