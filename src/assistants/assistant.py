@@ -1,5 +1,8 @@
 from openai_client_handler import get_openai_client
 from .event_handler import EventHandler
+from function_call.function_call import assistant_tools
+import traceback
+from advanced_logging_setup import logger
 
 class OpenAIAssistant:
     def __init__(self, name: str, instructions: str, model: str, streaming_enabled: bool = True):
@@ -17,7 +20,8 @@ class OpenAIAssistant:
         self._assistant = self._client.beta.assistants.create(
             name=self._name,
             instructions=self._instructions,
-            tools=[{"type": "code_interpreter"}],
+            # tools=[{"type": "code_interpreter"}],
+            tools=assistant_tools,
             model=self._model,
         )
         self._thread = self._client.beta.threads.create()
@@ -72,13 +76,13 @@ class OpenAIAssistant:
                 print(content.text.value)
         print("--------------------")
 
-def chat(name, instructions, run_instructions, model) -> bool:
+def chat(name, instructions, run_instructions, model, streaming_enabled=True) -> bool:
     from chat_handler import format_user_input
     assistant = OpenAIAssistant(
         name=name,
         instructions=instructions,
         model=model,
-        streaming_enabled=True
+        streaming_enabled=streaming_enabled
     )
 
     while True:
@@ -97,11 +101,15 @@ def chat(name, instructions, run_instructions, model) -> bool:
                 continue
 
             message = format_user_input(user_input)
-            assistant.run(
-                run_instructions=run_instructions,
-                user_message=message
-            )
-
+            try:
+                assistant.run(
+                    run_instructions=run_instructions,
+                    user_message=message
+                )
+            except Exception as e:
+                print(f"\nAn error occurred: {e}")
+                traceback.print_exc()
+                logger.error(traceback.format_exc())
 
 if __name__ == "__main__":
     assistant = OpenAIAssistant(

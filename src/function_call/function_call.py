@@ -16,6 +16,13 @@ tools = [
     tool_get_website_content
 ]
 
+assistant_tools = [
+    {"type": "code_interpreter"},
+    # tool_get_current_weather,
+    # tool_get_current_date,
+    # tool_get_website_content
+]
+
 available_functions = {
     "get_current_weather": get_current_weather,
     "get_current_date": get_current_date,

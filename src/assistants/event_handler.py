@@ -1,27 +1,27 @@
 from typing_extensions import override
 from openai import AssistantEventHandler
- 
- 
-class EventHandler(AssistantEventHandler):    
+from advanced_logging_setup import logger
+
+class EventHandler(AssistantEventHandler):
     """
     How we want to handle the events in the response stream.
     """
     @override
     def on_text_created(self, text) -> None:
         print(f"\nassistant > ", end="", flush=True)
-        
+
     @override
     def on_text_delta(self, delta, snapshot):
         print(delta.value, end="", flush=True)
-        
+
     def on_tool_call_created(self, tool_call):
         print(f"\nassistant > {tool_call.type}\n", flush=True)
-    
+
     def on_tool_call_delta(self, delta, snapshot):
         if delta.type == 'code_interpreter':
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
-            
+
             if delta.code_interpreter.outputs:
                 print(f"\n\noutput >", flush=True)
                 for output in delta.code_interpreter.outputs:
@@ -29,4 +29,7 @@ class EventHandler(AssistantEventHandler):
                         print(f"\n{output.logs}", flush=True)
         else:
             print("delta.type:", delta.type)
-    
+            logger.debug(f'delta: {delta}')
+
+            if delta.function.output:
+                print(f"\n\noutput > {delta.function.output}")
