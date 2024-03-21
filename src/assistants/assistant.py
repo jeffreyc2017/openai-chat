@@ -1,5 +1,5 @@
 from openai_client_handler import get_openai_client
-from .event_handler import EventHandler
+from .assistant_stream_helpers import EventHandler
 from function_call.function_call import assistant_tools
 import traceback
 from advanced_logging_setup import logger
@@ -25,6 +25,9 @@ class OpenAIAssistant:
             model=self._model,
         )
         self._thread = self._client.beta.threads.create()
+
+    def remove(self):
+        self._client.beta.assistants.delete(self._assistant.id)
 
     def run(self, run_instructions: str, user_message: str):
         self._client.beta.threads.messages.create(
@@ -78,38 +81,42 @@ class OpenAIAssistant:
 
 def chat(name, instructions, run_instructions, model, streaming_enabled=True) -> bool:
     from chat_handler import format_user_input
-    assistant = OpenAIAssistant(
-        name=name,
-        instructions=instructions,
-        model=model,
-        streaming_enabled=streaming_enabled
-    )
 
-    while True:
-        print("\nyou: ", end="")
-        user_input = []
-        while (line := input()) != "":
-            if line.lower() == "exit":  # Allow the user to exit the chat
-                print("Exiting chat. Goodbye!")
-                return False
-            elif line.lower() == "restart":
-                return True
+    try:
+        assistant = OpenAIAssistant(
+            name=name,
+            instructions=instructions,
+            model=model,
+            streaming_enabled=streaming_enabled
+        )
 
-            user_input.append(line)
+        while True:
+            print("\nyou: ", end="")
+            user_input = []
+            while (line := input()) != "":
+                if line.lower() == "exit":  # Allow the user to exit the chat
+                    print("Exiting chat. Goodbye!")
+                    return False
+                elif line.lower() == "restart":
+                    return True
 
-            if not user_input:  # Skip empty messages
-                continue
+                user_input.append(line)
 
-            message = format_user_input(user_input)
-            try:
-                assistant.run(
-                    run_instructions=run_instructions,
-                    user_message=message
-                )
-            except Exception as e:
-                print(f"\nAn error occurred: {e}")
-                traceback.print_exc()
-                logger.error(traceback.format_exc())
+                if not user_input:  # Skip empty messages
+                    continue
+
+                message = format_user_input(user_input)
+                try:
+                    assistant.run(
+                        run_instructions=run_instructions,
+                        user_message=message
+                    )
+                except Exception as e:
+                    print(f"\nAn error occurred: {e}")
+                    traceback.print_exc()
+                    logger.error(traceback.format_exc())
+    finally:
+        assistant.remove()
 
 if __name__ == "__main__":
     assistant = OpenAIAssistant(
