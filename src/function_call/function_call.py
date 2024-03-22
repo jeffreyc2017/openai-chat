@@ -54,15 +54,22 @@ def function_call(model, messages, response_message):
     """
     For chat completions function call.
     """
-    messages_copy = copy.deepcopy(messages)
-    messages_copy.append(response_message)  # extend conversation with assistant's reply
+
+    messages.append(response_message)  # extend conversation with assistant's reply
     tool_calls = response_message.tool_calls
     for tool_call in tool_calls:
         function_name = tool_call.function.name
+        print(f'function name: {function_name}')
+        if function_name is None:
+            continue
         function_to_call = available_functions[function_name]
-        function_args = json.loads(tool_call.function.arguments)
+        function_args = None
+        try:
+            function_args = json.loads(tool_call.function.arguments)
+        except Exception as e:
+            function_args = {}
         function_response = function_to_call(function_args)
-        messages_copy.append(
+        messages.append(
             {
                 "tool_call_id": tool_call.id,
                 "role": "tool",
@@ -70,9 +77,10 @@ def function_call(model, messages, response_message):
                 "content": function_response,
             }
         )  # extend conversation with function response
+
     second_response = get_openai_client().chat.completions.create(
         model=model,
-        messages=messages_copy,
+        messages=messages,
     )  # get a new response from the model where it can see the function response
     return second_response
 

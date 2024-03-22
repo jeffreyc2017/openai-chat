@@ -22,9 +22,11 @@ def main():
                 print("Exiting the application.")
                 return
         elif chat_completions_or_assistant.lower() == 'c':
-            if not completions_chat(system_prompt=instructions, model=model):
+            if not completions_chat(system_prompt=instructions, model=model, stream_enabled=streaming_enabled):
                 print("Exiting the application.")
                 return
+        else:
+            return
 
 if __name__ == "__main__":
     main()
