@@ -16,19 +16,25 @@ class EventHandler(AssistantEventHandler):
         - https://platform.openai.com/docs/assistants/overview?context=with-streaming
         - https://github.com/openai/openai-python/blob/main/helpers.md#assistant-events
     """
+    last_function_response = None
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.last_function_response = []
+
     @override
     def on_event(self, event: AssistantStreamEvent) -> None:
-        print(event.event)
+        logger.debug(event.event)
         if event.event == "thread.run.step.created":
             details = event.data.step_details
             if details.type == "tool_calls":
-                print("Generating code to interpret:\n\n```py")
+                logger.debug("Generating code to interpret:\n\n```py")
         elif event.event == "thread.message.created":
-            print("\nResponse:\n")
+            logger.debug("\nResponse:\n")
 
     @override
     def on_text_created(self, text: Text) -> None:
-        print(f"\nassistant > ", end="", flush=True)
+        print(f"\nassistant: ", end="", flush=True)
 
     @override
     def on_text_delta(self, delta: TextDelta, snapshot):
@@ -55,12 +61,18 @@ class EventHandler(AssistantEventHandler):
 
     def on_tool_call_done(self, tool_call: CodeInterpreterToolCall | RetrievalToolCall | FunctionToolCall) -> None:
         logger.debug(f'on_tool_call_done: {tool_call}')
-        function_name = tool_call.function.name
-        function_to_call = available_functions[function_name]
-        function_args = json.loads(tool_call.function.arguments)
-        function_response = function_to_call(function_args)
-        print(function_response)
-        tool_call.function.output = function_response
+        if tool_call.type == 'function':
+            function_name = tool_call.function.name
+            function_to_call = available_functions[function_name]
+            function_args = json.loads(tool_call.function.arguments)
+            function_response = function_to_call(function_args)
+            print(function_response)
+            self.last_function_response.append(
+                {
+                    "tool_call_id": tool_call.id,
+                    "output": function_response,
+                }
+            )
         return super().on_tool_call_done(tool_call)
 
     @override
@@ -81,3 +93,7 @@ class EventHandler(AssistantEventHandler):
 
     def on_exception(self, exception: Exception):
         logger.ERROR(f'error: {exception}')
+
+    def on_end(self) -> None:
+        logger.debug(f'on_end')
+        return super().on_end()

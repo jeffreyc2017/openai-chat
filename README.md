@@ -6,13 +6,18 @@ A Python script that interacts with the OpenAI API to generate conversational AI
 
 - [x] Create prompt :tada:
 - [x] Select model :tada:
-- [ ] Function call
+- [x] Function call
+
   - Chat completions mode
+
     - [x] Streaming
     - [x] Without streaming
+
   - Assistant mode
-    - [ ] Streaming
+
+    - [x] Streaming
     - [x] Without streaming
+
   - [x] Access website :tada:
 
     This is a function call.

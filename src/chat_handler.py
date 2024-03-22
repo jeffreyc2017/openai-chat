@@ -29,7 +29,7 @@ def chat(system_prompt, model, stream_enabled=False) -> bool:
     print("Enter your message. Press enter twice to send. Type 'exit' to quit.")
 
     while True:
-        print("\nyou: ", end="")
+        print("\nYou: ", end="")
         user_input = []
         while (line := input()) != "":
             if line.lower() == "exit":  # Allow the user to exit the chat

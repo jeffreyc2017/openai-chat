@@ -21,7 +21,6 @@ class OpenAIAssistant:
         self._assistant = self._client.beta.assistants.create(
             name=self._name,
             instructions=self._instructions,
-            # tools=[{"type": "code_interpreter"}],
             tools=assistant_tools,
             model=self._model,
         )
@@ -38,13 +37,28 @@ class OpenAIAssistant:
         )
 
         if self._streaming_enabled:
+            event_handler = EventHandler()
+
             with self._client.beta.threads.runs.create_and_stream(
                 thread_id=self._thread.id,
                 assistant_id=self._assistant.id,
                 instructions=run_instructions,
-                event_handler=EventHandler(),
+                event_handler=event_handler,
             ) as stream:
                 stream.until_done()
+
+            run = stream.current_run
+            if run is not None:
+                if event_handler.last_function_response is not None:
+                    if run.status == 'requires_action':
+                        with self._client.beta.threads.runs.submit_tool_outputs_stream(
+                            run_id=run.id,
+                            thread_id=self._thread.id,
+                            tool_outputs=event_handler.last_function_response,
+                            event_handler=EventHandler()
+                        ) as stream:
+                            stream.until_done()
+
         else:
             run = self._client.beta.threads.runs.create(
                 thread_id=self._thread.id,
@@ -107,7 +121,7 @@ def chat(name, instructions, run_instructions, model, streaming_enabled=True) ->
         )
 
         while True:
-            print("\nyou: ", end="")
+            print("\nYou: ", end="")
             user_input = []
             while (line := input()) != "":
                 if line.lower() == "exit":  # Allow the user to exit the chat
@@ -122,24 +136,22 @@ def chat(name, instructions, run_instructions, model, streaming_enabled=True) ->
                     continue
 
                 message = format_user_input(user_input)
-                try:
-                    assistant.run(
-                        run_instructions=run_instructions,
-                        user_message=message
-                    )
-                except Exception as e:
-                    print(f"\nAn error occurred: {e}")
-                    traceback.print_exc()
-                    logger.error(traceback.format_exc())
-    finally:
-        assistant.remove()
+                assistant.run(
+                    run_instructions=run_instructions,
+                    user_message=message
+                )
+    except Exception as e:
+        print(f'error: {e}')
+        logger.error(traceback.format_exc())
+        print('restart...')
+        return True
 
 if __name__ == "__main__":
     assistant = OpenAIAssistant(
         name="Math Tutor",
         instructions="You are a personal math tutor. Write and run code to answer math questions.",
         model="gpt-3.5-turbo",
-        streaming_enabled=False
+        streaming_enabled=True
     )
 
     assistant.run(
