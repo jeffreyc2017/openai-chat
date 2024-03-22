@@ -6,6 +6,7 @@ from assistants.assistant import chat as assistant_chat
 def main():
     while True:
         chat_completions_or_assistant = input("Chat completions(C/c) or Assistant(A/a)?:")
+        streaming_enabled = input("Enable streaming?(Y/y):").lower() == 'y'
         model = choose_model()
 
         # Unpack returned values from choose_prompt
@@ -17,13 +18,15 @@ def main():
             return
 
         if chat_completions_or_assistant.lower() == 'a':
-            if not assistant_chat(name=name, instructions=instructions, run_instructions=run_instructions, model=model, streaming_enabled=True):
+            if not assistant_chat(name=name, instructions=instructions, run_instructions=run_instructions, model=model, streaming_enabled=streaming_enabled):
                 print("Exiting the application.")
                 return
         elif chat_completions_or_assistant.lower() == 'c':
-            if not completions_chat(system_prompt=instructions, model=model):
+            if not completions_chat(system_prompt=instructions, model=model, stream_enabled=streaming_enabled):
                 print("Exiting the application.")
                 return
+        else:
+            return
 
 if __name__ == "__main__":
     main()

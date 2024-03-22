@@ -6,29 +6,40 @@ A Python script that interacts with the OpenAI API to generate conversational AI
 
 - [x] Create prompt :tada:
 - [x] Select model :tada:
-- [ ] Function call
-    - [x] Access website :tada:
+- [x] Function call
 
-        This is a function call.
+  - Chat completions mode
 
-        Usage:
+    - [x] Streaming
+    - [x] Without streaming
 
-        You: Check the content of the webpage: example.com (this will parse the html text within the page)
+  - Assistant mode
 
-        You: Check the full content of the webpage: example.com (this will grad all the content including the js)
+    - [x] Streaming
+    - [x] Without streaming
 
-    - [x] Get current date and time :tada:
+  - [x] Access website :tada:
 
-        A function call to get the time and date based on the time zone.
+    This is a function call.
 
-    - [ ] Get current weather
+    Usage:
 
-        A function call to get the current weather based on the location.
-        Currently it's a dummy function. Fully implementation needs to register a weather API to fetch the weather data.
+    You: Check the content of the webpage: example.com (this will parse the html text within the page)
 
-    - [ ] Read files
+    You: Check the full content of the webpage: example.com (this will grad all the content including the js)
 
-        A function call.
+  - [x] Get current date and time :tada:
+
+    A function call to get the time and date based on the time zone.
+
+  - [ ] Get current weather
+
+    A function call to get the current weather based on the location.
+    Currently it's a dummy function. Fully implementation needs to register a weather API to fetch the weather data.
+
+  - [ ] Read files
+
+    A function call.
 
 - [x] Count tokens :tada:
 
@@ -71,8 +82,8 @@ make
 
 To run the script, follow these steps:
 
-1.	Open a terminal and navigate to the directory containing the script.
-2.	Before using make, ensure you have a Makefile with appropriate commands for executing the script. If you’re not using a Makefile, you can directly run the script using Python:
+1. Open a terminal and navigate to the directory containing the script.
+2. Before using make, ensure you have a Makefile with appropriate commands for executing the script. If you’re not using a Makefile, you can directly run the script using Python:
 
     ```bash
     python src/main.py
@@ -84,9 +95,9 @@ To run the script, follow these steps:
     make run
     ```
 
-3.	Upon running, you’ll be prompted to enter your message. Type your message and press enter. To send multiple lines, press enter after each line. When finished, press enter twice to send your message to the AI.
-4.	The script will then process your input, displaying “AI is thinking…” while generating a response. Once completed, it will display the AI’s response.
-5.	To exit the chat, type exit at the prompt.
+3. Upon running, you’ll be prompted to enter your message. Type your message and press enter. To send multiple lines, press enter after each line. When finished, press enter twice to send your message to the AI.
+4. The script will then process your input, displaying “AI is thinking…” while generating a response. Once completed, it will display the AI’s response.
+5. To exit the chat, type exit at the prompt.
 
 ## Contributing
 
@@ -100,7 +111,7 @@ Contributions are what make the open-source community such an amazing place to l
 
 ## License
 
-Distributed under the MIT License. See (LICENSE)[LICENSE] for more information.
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## Author
 
@@ -109,6 +120,5 @@ Distributed under the MIT License. See (LICENSE)[LICENSE] for more information.
 ## Acknowledgments
 
 - Hat tip to anyone whose code was used
-
 
 Enjoy chatting with AI!

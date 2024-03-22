@@ -1,8 +1,9 @@
 from openai_client_handler import get_openai_client
 from .assistant_stream_helpers import EventHandler
-from function_call.function_call import assistant_tools
+from function_call.function_call import assistant_tools, assistant_function_call
 import traceback
 from advanced_logging_setup import logger
+import time
 
 class OpenAIAssistant:
     def __init__(self, name: str, instructions: str, model: str, streaming_enabled: bool = True):
@@ -20,7 +21,6 @@ class OpenAIAssistant:
         self._assistant = self._client.beta.assistants.create(
             name=self._name,
             instructions=self._instructions,
-            # tools=[{"type": "code_interpreter"}],
             tools=assistant_tools,
             model=self._model,
         )
@@ -37,13 +37,28 @@ class OpenAIAssistant:
         )
 
         if self._streaming_enabled:
+            event_handler = EventHandler()
+
             with self._client.beta.threads.runs.create_and_stream(
                 thread_id=self._thread.id,
                 assistant_id=self._assistant.id,
                 instructions=run_instructions,
-                event_handler=EventHandler(),
+                event_handler=event_handler,
             ) as stream:
                 stream.until_done()
+
+            run = stream.current_run
+            if run is not None:
+                if event_handler.last_function_response is not None:
+                    if run.status == 'requires_action':
+                        with self._client.beta.threads.runs.submit_tool_outputs_stream(
+                            run_id=run.id,
+                            thread_id=self._thread.id,
+                            tool_outputs=event_handler.last_function_response,
+                            event_handler=EventHandler()
+                        ) as stream:
+                            stream.until_done()
+
         else:
             run = self._client.beta.threads.runs.create(
                 thread_id=self._thread.id,
@@ -51,9 +66,16 @@ class OpenAIAssistant:
                 instructions=run_instructions
             )
 
-            import time
+            while not run.status == 'completed':
+                logger.debug(f'run: {run}')
+                if run.status == 'requires_action':
+                    tool_outputs = assistant_function_call(run.required_action.submit_tool_outputs.tool_calls)
+                    run = self._client.beta.threads.runs.submit_tool_outputs(
+                        thread_id=self._thread.id,
+                        run_id=run.id,
+                        tool_outputs=tool_outputs
+                    )
 
-            while run.status in ['queued', 'in_progress', 'cancelling']:
                 time.sleep(1)
                 run = self._client.beta.threads.runs.retrieve(
                     thread_id=self._thread.id,
@@ -64,7 +86,14 @@ class OpenAIAssistant:
                 messages = self._client.beta.threads.messages.list(
                     thread_id=self._thread.id
                 )
-                self._print_sorted_messages(messages)
+
+                logger.debug(f'messages: {messages}')
+
+                message = messages.data[0]
+                if message.role == 'assistant':
+                    print("assistant:", end="")
+                    for content in message.content:
+                        print(content.text.value)
             else:
                 print(run.status)
 
@@ -74,9 +103,10 @@ class OpenAIAssistant:
         print("--------------------")
         sorted_messages = sorted(messages, key=lambda x: x.created_at)
         for message in sorted_messages:
-            print(message.created_at, " ", message.role, ":")
-            for content in message.content:
-                print(content.text.value)
+            if message.role == 'assistant':
+                print("assistant:", end="")
+                for content in message.content:
+                    print(content.text.value)
         print("--------------------")
 
 def chat(name, instructions, run_instructions, model, streaming_enabled=True) -> bool:
@@ -91,7 +121,7 @@ def chat(name, instructions, run_instructions, model, streaming_enabled=True) ->
         )
 
         while True:
-            print("\nyou: ", end="")
+            print("\nYou: ", end="")
             user_input = []
             while (line := input()) != "":
                 if line.lower() == "exit":  # Allow the user to exit the chat
@@ -106,17 +136,15 @@ def chat(name, instructions, run_instructions, model, streaming_enabled=True) ->
                     continue
 
                 message = format_user_input(user_input)
-                try:
-                    assistant.run(
-                        run_instructions=run_instructions,
-                        user_message=message
-                    )
-                except Exception as e:
-                    print(f"\nAn error occurred: {e}")
-                    traceback.print_exc()
-                    logger.error(traceback.format_exc())
-    finally:
-        assistant.remove()
+                assistant.run(
+                    run_instructions=run_instructions,
+                    user_message=message
+                )
+    except Exception as e:
+        print(f'error: {e}')
+        logger.error(traceback.format_exc())
+        print('restart...')
+        return True
 
 if __name__ == "__main__":
     assistant = OpenAIAssistant(

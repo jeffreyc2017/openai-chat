@@ -10,7 +10,7 @@ def format_user_input(user_input):
     """
     return "\n".join(user_input)
 
-def chat(system_prompt, model) -> bool:
+def chat(system_prompt, model, stream_enabled=False) -> bool:
     """
     This function continuously accepts user input, breaks it into lines, and then sends it to
     OpenAI's chat completion API to generate a response based on the provided model.
@@ -29,7 +29,7 @@ def chat(system_prompt, model) -> bool:
     print("Enter your message. Press enter twice to send. Type 'exit' to quit.")
 
     while True:
-        print("\nyou: ", end="")
+        print("\nYou: ", end="")
         user_input = []
         while (line := input()) != "":
             if line.lower() == "exit":  # Allow the user to exit the chat
@@ -57,14 +57,12 @@ def chat(system_prompt, model) -> bool:
 
         print("AI is thinking...", end="", flush=True)
 
-        stream = False
-
         try:
             response = openai_client.chat.completions.create(
                 model=model,
                 messages=messages,
                 tools=tools,
-                stream=stream,
+                stream=stream_enabled,
                 temperature=1,
                 max_tokens=1024,
                 top_p=1,
@@ -76,33 +74,45 @@ def chat(system_prompt, model) -> bool:
             logger.debug(f'Response: {response}')
             print("AI: ", end="")
 
-            if stream:
-                for chunk in response:
-                    if chunk.choices[0].delta.content is not None:
-                        print(chunk.choices[0].delta.content, end="")
+            response_content = None
 
-                total_prompt_tokens += num_prompt_tokens
+            if stream_enabled:
+                for chunk in response:
+                    logger.debug(f'chunk: {chunk}')
+                    for choice in chunk.choices:
+                        if hasattr(choice, 'message') and choice.message is not None:
+                            print(choice.message.content, end="")
+                        elif hasattr(choice, 'delta'):
+                            if choice.delta.content:
+                                print(choice.delta.content, end="")
+                            if choice.delta.tool_calls and choice.delta.role is not None:
+                                second_response = function_call(model, messages, choice.delta)
+                                logger.debug(f'second_response: {second_response}')
+                                response_content = second_response.choices[0].message.content
+
+                                total_prompt_tokens += second_response.usage.prompt_tokens
+                                total_completion_tokens += second_response.usage.completion_tokens
+                                total_tokens += second_response.usage.total_tokens
             else:
-                response_content = None
                 for choice in response.choices:
                     response_message = choice.message
-                    tool_calls = response_message.tool_calls
-                    if tool_calls:
+
+                    if response_message.tool_calls:
                         second_response = function_call(model, messages, response_message)
                         response_content = second_response.choices[0].message.content
                     else:
                         response_content = response_message.content
 
-                    if response_content:
-                        print(response_content)
-                        messages.append({"role": "assistant", "content": response_content})
-
                 total_prompt_tokens += response.usage.prompt_tokens
                 total_completion_tokens += response.usage.completion_tokens
                 total_tokens += response.usage.total_tokens
 
+            if response_content:
+                print(response_content)
+                messages.append({"role": "assistant", "content": response_content})
+
             print("-------------------------")
-            print(f'Token count for this interaction: total tokens: {response.usage.total_tokens}, prompt tokens: {response.usage.prompt_tokens}, completion tokens: {response.usage.completion_tokens}.')
+            print(f'Token count for this interaction: total tokens: {total_tokens}, prompt tokens: {total_prompt_tokens}, completion tokens: {total_completion_tokens}.')
         except Exception as e:
             print(f"\nAn error occurred: {e}")
             traceback.print_exc()
