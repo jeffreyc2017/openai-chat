@@ -1,9 +1,12 @@
 from typing_extensions import override
 from openai import AssistantEventHandler
+from openai.types.beta import AssistantStreamEvent
 from openai.types.beta.threads import Text, TextDelta
-from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
+from openai.types.beta.threads.runs import ToolCall, ToolCallDelta, CodeInterpreterToolCall, RetrievalToolCall, FunctionToolCall
 from openai.types.beta.threads.runs import RunStep, RunStepDelta
 from advanced_logging_setup import logger
+from function_call.function_call import available_functions
+import json
 
 class EventHandler(AssistantEventHandler):
     """
@@ -13,14 +16,15 @@ class EventHandler(AssistantEventHandler):
         - https://platform.openai.com/docs/assistants/overview?context=with-streaming
         - https://github.com/openai/openai-python/blob/main/helpers.md#assistant-events
     """
-    # @override
-    # def on_event(self, event: AssistantStreamEvent) -> None:
-    #     if event.event == "thread.run.step.created":
-    #         details = event.data.step_details
-    #         if details.type == "tool_calls":
-    #             print("Generating code to interpret:\n\n```py")
-    #     elif event.event == "thread.message.created":
-    #         print("\nResponse:\n")
+    @override
+    def on_event(self, event: AssistantStreamEvent) -> None:
+        print(event.event)
+        if event.event == "thread.run.step.created":
+            details = event.data.step_details
+            if details.type == "tool_calls":
+                print("Generating code to interpret:\n\n```py")
+        elif event.event == "thread.message.created":
+            print("\nResponse:\n")
 
     @override
     def on_text_created(self, text: Text) -> None:
@@ -31,12 +35,12 @@ class EventHandler(AssistantEventHandler):
         print(delta.value, end="", flush=True)
 
     def on_tool_call_created(self, tool_call: ToolCall):
-        print(f"\nassistant > {tool_call.type}\n", flush=True)
+        logger.debug(f'on_tool_call_created: {tool_call}')
 
     def on_tool_call_delta(self, delta: ToolCallDelta, snapshot):
         if delta.type == 'code_interpreter':
             if delta.code_interpreter.input:
-                print(delta.code_interpreter.input, end="", flush=True)
+                logger.debug(f'on_tool_call_delta: {delta}')
 
             if delta.code_interpreter.outputs:
                 print(f"\n\noutput >", flush=True)
@@ -44,10 +48,20 @@ class EventHandler(AssistantEventHandler):
                     if output.type == "logs":
                         print(f"\n{output.logs}", flush=True)
         else:
-            logger.debug(f'delta: {delta}')
+            logger.debug(f'on_tool_call_delta: {delta}')
 
             if delta.function.output:
                 print(f"\n\noutput > {delta.function.output}")
+
+    def on_tool_call_done(self, tool_call: CodeInterpreterToolCall | RetrievalToolCall | FunctionToolCall) -> None:
+        logger.debug(f'on_tool_call_done: {tool_call}')
+        function_name = tool_call.function.name
+        function_to_call = available_functions[function_name]
+        function_args = json.loads(tool_call.function.arguments)
+        function_response = function_to_call(function_args)
+        print(function_response)
+        tool_call.function.output = function_response
+        return super().on_tool_call_done(tool_call)
 
     @override
     def on_run_step_done(self, run_step: RunStep) -> None:
