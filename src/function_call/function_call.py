@@ -18,9 +18,9 @@ tools = [
 
 assistant_tools = [
     {"type": "code_interpreter"},
-    # tool_get_current_weather,
-    # tool_get_current_date,
-    # tool_get_website_content
+    tool_get_current_weather,
+    tool_get_current_date,
+    tool_get_website_content
 ]
 
 available_functions = {
@@ -29,7 +29,31 @@ available_functions = {
     "get_website_content": get_website_content,
 }
 
+def assistant_function_call(tool_calls):
+    """
+    This is only used by the assistant.
+    """
+    tool_outputs = []
+
+    for tool_call in tool_calls:
+        function_name = tool_call.function.name
+        function_to_call = available_functions[function_name]
+        function_args = json.loads(tool_call.function.arguments)
+        function_response = function_to_call(function_args)
+
+        tool_outputs.append(
+            {
+                "tool_call_id": tool_call.id,
+                "output": function_response,
+            }
+        )
+
+    return tool_outputs
+
 def function_call(model, messages, response_message):
+    """
+    For chat completions function call.
+    """
     messages_copy = copy.deepcopy(messages)
     messages_copy.append(response_message)  # extend conversation with assistant's reply
     tool_calls = response_message.tool_calls

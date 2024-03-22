@@ -1,8 +1,9 @@
 from openai_client_handler import get_openai_client
 from .assistant_stream_helpers import EventHandler
-from function_call.function_call import assistant_tools
+from function_call.function_call import assistant_tools, assistant_function_call
 import traceback
 from advanced_logging_setup import logger
+import time
 
 class OpenAIAssistant:
     def __init__(self, name: str, instructions: str, model: str, streaming_enabled: bool = True):
@@ -51,9 +52,16 @@ class OpenAIAssistant:
                 instructions=run_instructions
             )
 
-            import time
+            while not run.status == 'completed':
+                logger.debug(f'run: {run}')
+                if run.status == 'requires_action':
+                    tool_outputs = assistant_function_call(run.required_action.submit_tool_outputs.tool_calls)
+                    run = self._client.beta.threads.runs.submit_tool_outputs(
+                        thread_id=self._thread.id,
+                        run_id=run.id,
+                        tool_outputs=tool_outputs
+                    )
 
-            while run.status in ['queued', 'in_progress', 'cancelling']:
                 time.sleep(1)
                 run = self._client.beta.threads.runs.retrieve(
                     thread_id=self._thread.id,
@@ -64,7 +72,14 @@ class OpenAIAssistant:
                 messages = self._client.beta.threads.messages.list(
                     thread_id=self._thread.id
                 )
-                self._print_sorted_messages(messages)
+
+                logger.debug(f'messages: {messages}')
+
+                message = messages.data[0]
+                if message.role == 'assistant':
+                    print("assistant:", end="")
+                    for content in message.content:
+                        print(content.text.value)
             else:
                 print(run.status)
 
@@ -74,9 +89,10 @@ class OpenAIAssistant:
         print("--------------------")
         sorted_messages = sorted(messages, key=lambda x: x.created_at)
         for message in sorted_messages:
-            print(message.created_at, " ", message.role, ":")
-            for content in message.content:
-                print(content.text.value)
+            if message.role == 'assistant':
+                print("assistant:", end="")
+                for content in message.content:
+                    print(content.text.value)
         print("--------------------")
 
 def chat(name, instructions, run_instructions, model, streaming_enabled=True) -> bool:
@@ -123,7 +139,7 @@ if __name__ == "__main__":
         name="Math Tutor",
         instructions="You are a personal math tutor. Write and run code to answer math questions.",
         model="gpt-3.5-turbo",
-        streaming_enabled=True
+        streaming_enabled=False
     )
 
     assistant.run(

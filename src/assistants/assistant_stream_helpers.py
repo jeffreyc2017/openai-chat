@@ -44,7 +44,6 @@ class EventHandler(AssistantEventHandler):
                     if output.type == "logs":
                         print(f"\n{output.logs}", flush=True)
         else:
-            print("delta.type:", delta.type)
             logger.debug(f'delta: {delta}')
 
             if delta.function.output:
