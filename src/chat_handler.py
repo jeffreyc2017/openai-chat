@@ -111,7 +111,7 @@ def chat(system_prompt, model, stream_enabled=False) -> bool:
                 print(response_content)
                 messages.append({"role": "assistant", "content": response_content})
 
-            print("-------------------------")
+            print("\n-------------------------")
             print(f'Token count for this interaction: total tokens: {total_tokens}, prompt tokens: {total_prompt_tokens}, completion tokens: {total_completion_tokens}.')
         except Exception as e:
             print(f"\nAn error occurred: {e}")
