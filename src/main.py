@@ -1,6 +1,6 @@
 from model_selector import choose_model
 from prompt_creator import choose_prompt
-from chat_handler import chat as completions_chat
+from chat_completions.chat_handler import chat as completions_chat
 from assistants.assistant import chat as assistant_chat
 
 def main():

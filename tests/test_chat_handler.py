@@ -1,11 +1,11 @@
 import unittest
 from unittest.mock import patch, MagicMock, ANY, call
-from src.chat_handler import chat
+from chat_completions.chat_handler import chat
 
 class TestChatHandler(unittest.TestCase):
     @patch('builtins.input', create=True)
     @patch('builtins.print')
-    @patch('src.chat_handler.get_openai_client')
+    @patch('chat_completions.chat_handler.get_openai_client')
     def test_chat_exit_immediately(self, mock_get_openai_client, mock_print, mock_input):
         """
         Test the chat function for immediate exit scenario without sending any message.
@@ -30,7 +30,7 @@ class TestChatHandler(unittest.TestCase):
 
     @patch('builtins.input', create=True)
     @patch('builtins.print')
-    @patch('src.chat_handler.get_openai_client')
+    @patch('chat_completions.chat_handler.get_openai_client')
     def test_chat_with_single_message(self, mock_get_openai_client, mock_print, mock_input):
         """
         Test the chat function with a single user message, then exiting.

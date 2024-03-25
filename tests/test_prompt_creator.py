@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, call
 from prompt_creator import choose_prompt
-from chat_handler import format_user_input
+from chat_completions.chat_handler import format_user_input
 
 class TestPromptCreator(unittest.TestCase):
 

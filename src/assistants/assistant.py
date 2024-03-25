@@ -110,7 +110,7 @@ class OpenAIAssistant:
         print("--------------------")
 
 def chat(name, instructions, run_instructions, model, streaming_enabled=True) -> bool:
-    from chat_handler import format_user_input
+    from chat_completions.chat_handler import format_user_input
 
     try:
         assistant = OpenAIAssistant(
