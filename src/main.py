@@ -1,6 +1,6 @@
 from model_selector import choose_model
 from prompt_creator import choose_prompt
-from chat_handler import chat as completions_chat
+from chat_completions.chat_handler import chat as completions_chat
 from assistants.assistant import chat as assistant_chat
 
 def main():
@@ -10,7 +10,7 @@ def main():
         model = choose_model()
 
         # Unpack returned values from choose_prompt
-        instructions, name, run_instructions = choose_prompt()
+        name, instructions, run_instructions = choose_prompt()
 
         # Check if any value is None to determine if we should exit
         if instructions is None or name is None or run_instructions is None:

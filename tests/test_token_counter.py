@@ -1,10 +1,10 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from src.token_counter import num_tokens_from_messages
+from helpers.token_counter import num_tokens_from_messages
 
 class TestTokenCounter(unittest.TestCase):
 
-    @patch('src.token_counter.tiktoken')
+    @patch('helpers.token_counter.tiktoken')
     def test_num_tokens_with_known_model(self, mock_tiktoken):
         """
         Test token counting for a model with predefined tokens per message and name.
@@ -22,7 +22,7 @@ class TestTokenCounter(unittest.TestCase):
         expected_token_count = 3 + len("user") + len("Hello, world!") + 3  # tokens_per_message + encoded content + priming tokens
         self.assertEqual(token_count, expected_token_count)
 
-    @patch('src.token_counter.tiktoken')
+    @patch('helpers.token_counter.tiktoken')
     def test_num_tokens_with_unsupported_model(self, mock_tiktoken):
         """
         Test token counting raises NotImplementedError for an unsupported model.
@@ -34,7 +34,7 @@ class TestTokenCounter(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             num_tokens_from_messages(messages, model)
 
-    @patch('src.token_counter.tiktoken')
+    @patch('helpers.token_counter.tiktoken')
     def test_num_tokens_fallback_to_base_encoding_for_unknown_model(self, mock_tiktoken):
         """
         Test token counting uses cl100k_base encoding for unknown models and prints a warning.

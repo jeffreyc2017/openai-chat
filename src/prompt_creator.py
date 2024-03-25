@@ -1,3 +1,9 @@
+"""
+an item of category includes:
+category name,
+instructions,
+run instructions
+"""
 categories = {
     "Custom Assistant": {
         "instructions": [
@@ -46,7 +52,7 @@ categories = {
     }
 }
 
-def choose_prompt():
+def choose_prompt() -> tuple[any, any, any]:
     print("\nChoose an assistant category:")
     for i, category in enumerate(categories.keys(), start=1):
         print(f"{i}. {category}")
@@ -54,19 +60,19 @@ def choose_prompt():
 
     if not category_choice.strip():
         print("No category selected. Exiting.")
-        return None, None, None, None
+        return (None, None, None)
 
     try:
         chosen_category_name = list(categories.keys())[int(category_choice) - 1]
         chosen_category = categories[chosen_category_name]
     except (ValueError, IndexError):
         print("Invalid category choice. Exiting.")
-        return None, None, None, None
+        return (None, None, None)
 
     if chosen_category_name == "Custom Assistant":
         custom_instructions = input("Enter your own instructions: ")
         custom_run_instructions = input("Enter your own run instructions: ")
-        return ("Custom", custom_instructions, "Custom Assistant", custom_run_instructions)
+        return (chosen_category_name, custom_instructions, custom_run_instructions)
 
     print(f"\nInstructions for {chosen_category_name}:")
     for i, instruction in enumerate(chosen_category["instructions"], start=1):
@@ -81,14 +87,14 @@ def choose_prompt():
     except (ValueError, IndexError):
         import random
         chosen_instructions = random.choice(chosen_category["instructions"])
-    
-    return (chosen_instructions, chosen_category_name, chosen_category["run_instructions"])
+
+    return (chosen_category_name, chosen_instructions, chosen_category["run_instructions"])
 
 if __name__ == "__main__":
-    instructions, name, run_instructions = choose_prompt()
+    name, instructions, run_instructions = choose_prompt()
     if instructions:
-        print("\nSelected Instructions:", instructions)
         print("Assistant Name:", name)
+        print("\nSelected Instructions:", instructions)
         print("Run Instructions:", run_instructions)
     else:
         print("No instructions selected.")

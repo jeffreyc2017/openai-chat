@@ -1,8 +1,9 @@
-from token_counter import num_tokens_from_messages
+from helpers.token_counter import num_tokens_from_messages
 from openai_client_handler import get_openai_client
 from function_call.function_call import function_call, tools
 import traceback
 from advanced_logging_setup import logger
+from helpers.token_counts import TokenCounts
 
 def format_user_input(user_input):
     """
@@ -18,9 +19,7 @@ def chat(system_prompt, model, stream_enabled=False) -> bool:
     Warns the user if the number of tokens in a request exceeds 1000.
     """
     openai_client = get_openai_client()
-    total_tokens = 0
-    total_prompt_tokens = 0
-    total_completion_tokens = 0
+    token_counts = TokenCounts()
 
     messages = []
     messages.append({"role": "system", "content": system_prompt})
@@ -34,7 +33,7 @@ def chat(system_prompt, model, stream_enabled=False) -> bool:
         while (line := input()) != "":
             if line.lower() == "exit":  # Allow the user to exit the chat
                 print("Exiting chat. Goodbye!")
-                print(f'Total tokens: {total_tokens}, total prompt tokens: {total_prompt_tokens}, total completion tokens: {total_completion_tokens}.')
+                token_counts.print()
                 return False
             elif line.lower() == "restart":
                 return True
@@ -90,9 +89,7 @@ def chat(system_prompt, model, stream_enabled=False) -> bool:
                                 logger.debug(f'second_response: {second_response}')
                                 response_content = second_response.choices[0].message.content
 
-                                total_prompt_tokens += second_response.usage.prompt_tokens
-                                total_completion_tokens += second_response.usage.completion_tokens
-                                total_tokens += second_response.usage.total_tokens
+                                token_counts.update(second_response.usage.prompt_tokens, second_response.usage.completion_tokens, second_response.usage.total_tokens)
             else:
                 for choice in response.choices:
                     response_message = choice.message
@@ -103,16 +100,14 @@ def chat(system_prompt, model, stream_enabled=False) -> bool:
                     else:
                         response_content = response_message.content
 
-                total_prompt_tokens += response.usage.prompt_tokens
-                total_completion_tokens += response.usage.completion_tokens
-                total_tokens += response.usage.total_tokens
+                token_counts.update(response.usage.prompt_tokens, response.usage.completion_tokens, response.usage.total_tokens)
 
             if response_content:
                 print(response_content)
                 messages.append({"role": "assistant", "content": response_content})
 
-            print("-------------------------")
-            print(f'Token count for this interaction: total tokens: {total_tokens}, prompt tokens: {total_prompt_tokens}, completion tokens: {total_completion_tokens}.')
+            print("\n-------------------------")
+            token_counts.print()
         except Exception as e:
             print(f"\nAn error occurred: {e}")
             traceback.print_exc()
