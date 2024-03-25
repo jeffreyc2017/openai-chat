@@ -21,7 +21,7 @@ class TestChatHandler(unittest.TestCase):
             call("Enter your message. Press enter twice to send. Type 'exit' to quit."),
             call('\nYou: ', end=''),
             call('Exiting chat. Goodbye!'),
-            call('Total tokens: 0, total prompt tokens: 0, total completion tokens: 0.')
+            call('Token count for all the interactions: prompt tokens: 0, completion tokens: 0, total tokens: 0.')
         ]
         mock_print.assert_has_calls(expected_calls, any_order=True)
 

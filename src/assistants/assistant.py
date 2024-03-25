@@ -4,6 +4,7 @@ from function_call.function_call import assistant_tools, assistant_function_call
 import traceback
 from advanced_logging_setup import logger
 import time
+from helpers.token_counts import TokenCounts
 
 class OpenAIAssistant:
     def __init__(self, name: str, instructions: str, model: str, streaming_enabled: bool = True):
@@ -14,6 +15,7 @@ class OpenAIAssistant:
         self._streaming_enabled = streaming_enabled
         self._assistant = None
         self._thread = None
+        self._token_counts = TokenCounts()
 
         self._create_assistant()
 
@@ -97,7 +99,14 @@ class OpenAIAssistant:
             else:
                 print(run.status)
 
-            print(run.usage)
+            '''
+            "usage": {
+                "prompt_tokens": 123,
+                "completion_tokens": 456,
+                "total_tokens": 579
+            }
+            '''
+            self._token_counts.update(run.usage.prompt_tokens, run.usage.completion_tokens, run.usage.total_tokens)
 
     def _print_sorted_messages(self, messages):
         print("--------------------")
