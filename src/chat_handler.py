@@ -1,4 +1,4 @@
-from token_counter import num_tokens_from_messages
+from helpers.token_counter import num_tokens_from_messages
 from openai_client_handler import get_openai_client
 from function_call.function_call import function_call, tools
 import traceback
