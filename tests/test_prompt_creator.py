@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, call
-from prompt_creator import choose_prompt, format_user_input
+from prompt_creator import choose_prompt
+from chat_handler import format_user_input
 
 class TestPromptCreator(unittest.TestCase):
 
@@ -16,18 +17,22 @@ class TestPromptCreator(unittest.TestCase):
         """
         Test choosing a valid category and prompt.
         """
-        expected_prompt = "Act as an old friend in conversation."
+        expected_prompt = (
+            "Old Friend Chat",
+            "Act as an old friend reminiscing about past experiences together.",
+            "Maintain a friendly and nostalgic tone throughout the conversation."
+        )
         prompt = choose_prompt()
         self.assertEqual(prompt, expected_prompt)
 
-    @patch('builtins.input', side_effect=['1', 'My custom prompt'])  # Invalid choice, then choose Custom, and enter a custom prompt
+    @patch('builtins.input', side_effect=['1', 'My custom prompt', 'My custom run instructions'])  # Invalid choice, then choose Custom, and enter a custom prompt
     @patch('builtins.print')
     def test_choose_prompt_custom_prompt(self, mock_print, mock_input):
         """
         Test the flow for choosing the 'Custom' category and entering a custom prompt.
         """
         prompt = choose_prompt()
-        self.assertEqual(prompt, 'My custom prompt')
+        self.assertEqual(prompt, ('Custom Assistant', 'My custom prompt', 'My custom run instructions'))
 
     @patch('builtins.input', side_effect=['999', '1', '1'])  # Initially invalid choice, then valid category and prompt
     @patch('builtins.print')
@@ -35,7 +40,7 @@ class TestPromptCreator(unittest.TestCase):
         """
         Test handling of an initial invalid choice followed by a valid category and prompt selection.
         """
-        expected_prompt = None
+        expected_prompt = (None, None, None)
         prompt = choose_prompt()
         self.assertEqual(prompt, expected_prompt)
 

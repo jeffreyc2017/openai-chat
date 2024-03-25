@@ -10,7 +10,7 @@ def main():
         model = choose_model()
 
         # Unpack returned values from choose_prompt
-        instructions, name, run_instructions = choose_prompt()
+        name, instructions, run_instructions = choose_prompt()
 
         # Check if any value is None to determine if we should exit
         if instructions is None or name is None or run_instructions is None:
