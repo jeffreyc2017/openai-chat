@@ -17,6 +17,7 @@ class EventHandler(AssistantEventHandler):
         - https://github.com/openai/openai-python/blob/main/helpers.md#assistant-events
     """
     last_function_response = None
+    last_text = ''
 
     def __init__(self) -> None:
         super().__init__()
@@ -39,6 +40,10 @@ class EventHandler(AssistantEventHandler):
     @override
     def on_text_delta(self, delta: TextDelta, snapshot):
         print(delta.value, end="", flush=True)
+
+    @override
+    def on_text_done(self, text: Text) -> None:
+        self.last_text = text.value
 
     def on_tool_call_created(self, tool_call: ToolCall):
         logger.debug(f'on_tool_call_created: {tool_call}')

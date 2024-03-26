@@ -44,7 +44,7 @@ A Python script that interacts with the OpenAI API to generate conversational AI
 - [x] Count tokens :tada:
 
   - [x] tiktoken
-  
+
     Utilizes `tiktoken` for accurate token counting, enabling estimation of the number of tokens used by prompts and responses. This is vital for effectively managing API costs, especially given the diverse pricing models based on token usage.
 
   - [x] Without streaming
@@ -61,7 +61,14 @@ A Python script that interacts with the OpenAI API to generate conversational AI
 
     See [OpenAI API pricing](https://openai.com/pricing) for more details.
 
-- [ ] Store conversations
+- [x] Save/Load conversations
+  - [x] Without streaming
+    - [x] Chat completions
+    - [x] Assistant
+
+  - [x] Streaming
+    - [x] Chat completions
+    - [x] Assistant
 
 - [x] Logging
 

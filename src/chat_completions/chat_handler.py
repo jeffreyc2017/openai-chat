@@ -11,7 +11,7 @@ def format_user_input(user_input):
     """
     return "\n".join(user_input)
 
-def chat(system_prompt, model, stream_enabled=False) -> bool:
+def chat(system_prompt, model, stream_enabled=False) -> tuple[bool, list]:
     """
     This function continuously accepts user input, breaks it into lines, and then sends it to
     OpenAI's chat completion API to generate a response based on the provided model.
@@ -34,9 +34,9 @@ def chat(system_prompt, model, stream_enabled=False) -> bool:
             if line.lower() == "exit":  # Allow the user to exit the chat
                 print("Exiting chat. Goodbye!")
                 token_counts.print()
-                return False
+                return False, messages
             elif line.lower() == "restart":
-                return True
+                return True, messages
 
             user_input.append(line)
 
@@ -73,7 +73,7 @@ def chat(system_prompt, model, stream_enabled=False) -> bool:
             logger.debug(f'Response: {response}')
             print("AI: ", end="")
 
-            response_content = None
+            response_content = ''
 
             if stream_enabled:
                 for chunk in response:
@@ -81,12 +81,14 @@ def chat(system_prompt, model, stream_enabled=False) -> bool:
                     for choice in chunk.choices:
                         if hasattr(choice, 'message') and choice.message is not None:
                             print(choice.message.content, end="")
+                            response_content += choice.message.content
                         elif hasattr(choice, 'delta'):
                             if choice.delta.content:
                                 print(choice.delta.content, end="")
+                                response_content += choice.delta.content
                             if choice.delta.tool_calls and choice.delta.role is not None:
                                 second_response = function_call(model, messages, choice.delta)
-                                logger.debug(f'second_response: {second_response}')
+                                print(second_response)
                                 response_content = second_response.choices[0].message.content
 
                                 token_counts.update(second_response.usage.prompt_tokens, second_response.usage.completion_tokens, second_response.usage.total_tokens)
@@ -96,14 +98,15 @@ def chat(system_prompt, model, stream_enabled=False) -> bool:
 
                     if response_message.tool_calls:
                         second_response = function_call(model, messages, response_message)
-                        response_content = second_response.choices[0].message.content
+                        print(second_response.choices[0].message.content)
+                        response_content += second_response.choices[0].message.content
                     else:
-                        response_content = response_message.content
+                        print(response_message.content)
+                        response_content += response_message.content
 
                 token_counts.update(response.usage.prompt_tokens, response.usage.completion_tokens, response.usage.total_tokens)
 
             if response_content:
-                print(response_content)
                 messages.append({"role": "assistant", "content": response_content})
 
             print("\n-------------------------")

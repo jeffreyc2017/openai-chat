@@ -31,12 +31,14 @@ class OpenAIAssistant:
     def remove(self):
         self._client.beta.assistants.delete(self._assistant.id)
 
-    def run(self, run_instructions: str, user_message: str):
+    def run(self, run_instructions: str, user_message: str) -> str:
         self._client.beta.threads.messages.create(
             thread_id=self._thread.id,
             role="user",
             content=user_message
         )
+
+        response = ''
 
         if self._streaming_enabled:
             event_handler = EventHandler()
@@ -48,6 +50,8 @@ class OpenAIAssistant:
                 event_handler=event_handler,
             ) as stream:
                 stream.until_done()
+
+            response += event_handler.last_text
 
             run = stream.current_run
             if run is not None:
@@ -61,6 +65,7 @@ class OpenAIAssistant:
                         ) as stream:
                             stream.until_done()
 
+                        response += event_handler.last_text
         else:
             run = self._client.beta.threads.runs.create(
                 thread_id=self._thread.id,
@@ -96,6 +101,7 @@ class OpenAIAssistant:
                     print("assistant:", end="")
                     for content in message.content:
                         print(content.text.value)
+                        response += content.text.value
             else:
                 print(run.status)
 
@@ -108,6 +114,8 @@ class OpenAIAssistant:
             '''
             self._token_counts.update(run.usage.prompt_tokens, run.usage.completion_tokens, run.usage.total_tokens)
 
+        return response
+
     def _print_sorted_messages(self, messages):
         print("--------------------")
         sorted_messages = sorted(messages, key=lambda x: x.created_at)
@@ -118,7 +126,7 @@ class OpenAIAssistant:
                     print(content.text.value)
         print("--------------------")
 
-def chat(name, instructions, run_instructions, model, streaming_enabled=True) -> bool:
+def chat(name, instructions, run_instructions, model, streaming_enabled=True) -> tuple[bool, list]:
     from chat_completions.chat_handler import format_user_input
 
     try:
@@ -129,15 +137,17 @@ def chat(name, instructions, run_instructions, model, streaming_enabled=True) ->
             streaming_enabled=streaming_enabled
         )
 
+        messages = []
+
         while True:
             print("\nYou: ", end="")
             user_input = []
             while (line := input()) != "":
                 if line.lower() == "exit":  # Allow the user to exit the chat
                     print("Exiting chat. Goodbye!")
-                    return False
+                    return False, messages
                 elif line.lower() == "restart":
-                    return True
+                    return True, messages
 
                 user_input.append(line)
 
@@ -145,15 +155,18 @@ def chat(name, instructions, run_instructions, model, streaming_enabled=True) ->
                     continue
 
                 message = format_user_input(user_input)
-                assistant.run(
+                response = assistant.run(
                     run_instructions=run_instructions,
                     user_message=message
                 )
+
+                messages.append({"role": "user", "content": message})
+                messages.append({"role": "assistant", "content": response})
     except Exception as e:
         print(f'error: {e}')
         logger.error(traceback.format_exc())
         print('restart...')
-        return True
+        return True, messages
 
 if __name__ == "__main__":
     assistant = OpenAIAssistant(
