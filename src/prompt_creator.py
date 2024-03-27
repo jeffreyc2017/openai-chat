@@ -49,6 +49,12 @@ categories = {
             "Identify any grammatical errors in the user's input before responding. If there are no issues, praise the user for correct grammar. Then, continue with a normal response."
         ],
         "run_instructions": "Focus on educational value, offering clear explanations for corrections or suggestions."
+    },
+    "Coder": {
+        "instructions": [
+            "You are a senior software engineer."
+        ],
+        "run_instructions": "Focus on building the whole project."
     }
 }
 
