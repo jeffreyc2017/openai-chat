@@ -126,7 +126,7 @@ class OpenAIAssistant:
                     print(content.text.value)
         print("--------------------")
 
-def chat(name, instructions, run_instructions, model, streaming_enabled=True) -> tuple[bool, list]:
+def chat(name, instructions, run_instructions, model, streaming_enabled=True, conversation_history=[]) -> tuple[bool, list]:
     from chat_completions.chat_handler import format_user_input
 
     try:
@@ -138,6 +138,8 @@ def chat(name, instructions, run_instructions, model, streaming_enabled=True) ->
         )
 
         messages = []
+        if conversation_history:
+            messages = conversation_history
 
         while True:
             print("\nYou: ", end="")

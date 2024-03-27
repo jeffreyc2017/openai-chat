@@ -11,7 +11,7 @@ def format_user_input(user_input):
     """
     return "\n".join(user_input)
 
-def chat(system_prompt, model, stream_enabled=False) -> tuple[bool, list]:
+def chat(system_prompt, model, stream_enabled=False, conversation_history=[]) -> tuple[bool, list]:
     """
     This function continuously accepts user input, breaks it into lines, and then sends it to
     OpenAI's chat completion API to generate a response based on the provided model.
@@ -22,7 +22,10 @@ def chat(system_prompt, model, stream_enabled=False) -> tuple[bool, list]:
     token_counts = TokenCounts()
 
     messages = []
-    messages.append({"role": "system", "content": system_prompt})
+    if conversation_history:
+        messages = conversation_history
+    else:
+        messages.append({"role": "system", "content": system_prompt})
 
     print("--------------------------------")
     print("Enter your message. Press enter twice to send. Type 'exit' to quit.")
