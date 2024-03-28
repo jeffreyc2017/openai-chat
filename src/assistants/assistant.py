@@ -1,10 +1,11 @@
-from openai_client_handler import get_openai_client
+from helpers.openai_client_handler import get_openai_client
 from .assistant_stream_helpers import EventHandler
 from function_call.function_call import assistant_tools, assistant_function_call
 import traceback
 from advanced_logging_setup import logger
 import time
 from helpers.token_counts import TokenCounts
+from helpers.running_env import RunningEnv
 
 class OpenAIAssistant:
     def __init__(self, name: str, instructions: str, model: str, streaming_enabled: bool = True):
@@ -126,15 +127,15 @@ class OpenAIAssistant:
                     print(content.text.value)
         print("--------------------")
 
-def chat(name, instructions, run_instructions, model, streaming_enabled=True, conversation_history=[]) -> tuple[bool, list]:
+def chat(running_env: RunningEnv, conversation_history=[]) -> tuple[bool, list]:
     from chat_completions.chat_handler import format_user_input
 
     try:
         assistant = OpenAIAssistant(
-            name=name,
-            instructions=instructions,
-            model=model,
-            streaming_enabled=streaming_enabled
+            name=running_env.category_name,
+            instructions=running_env.instructions,
+            model=running_env.model,
+            streaming_enabled=running_env.streaming_enabled
         )
 
         messages = []
@@ -158,7 +159,7 @@ def chat(name, instructions, run_instructions, model, streaming_enabled=True, co
 
                 message = format_user_input(user_input)
                 response = assistant.run(
-                    run_instructions=run_instructions,
+                    run_instructions=running_env.run_instructions,
                     user_message=message
                 )
 

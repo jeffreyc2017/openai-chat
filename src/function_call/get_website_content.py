@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from openai_client_handler import get_openai_client
+from helpers.openai_client_handler import get_openai_client
 
 tool_get_website_content = {
     "type": "function",
@@ -44,7 +44,7 @@ def fetch_website_content(url, full_content=False):
         if response.status_code == 200:
             if full_content:
                 return response.text
-            
+
             soup = BeautifulSoup(response.text, 'html.parser')
             # Extract text from the HTML content. Adjust as necessary.
             text = ' '.join(soup.stripped_strings)

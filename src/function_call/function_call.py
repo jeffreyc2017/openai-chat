@@ -3,7 +3,7 @@ See https://platform.openai.com/docs/guides/function-calling
 """
 
 import json
-from openai_client_handler import get_openai_client
+from helpers.openai_client_handler import get_openai_client
 from .get_current_date import get_current_date, tool_get_current_date
 from .get_current_weather import get_current_weather, tool_get_current_weather
 from .get_website_content import get_website_content, tool_get_website_content

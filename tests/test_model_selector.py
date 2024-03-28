@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch, call
-from src.model_selector import list_models, choose_model
+from helpers.model_selector import list_models, choose_model
 
 class TestModelSelector(unittest.TestCase):
-    
+
     def test_list_models(self):
         """Test if list_models returns the expected list of model names."""
         expected_models = [
@@ -23,7 +23,7 @@ class TestModelSelector(unittest.TestCase):
         """
         self.assertEqual(choose_model(), "gpt-3.5-turbo")
         mock_input.assert_called_once_with("Select a number to choose a model:")
-        
+
         # Ensure the introduction print statement is called
         mock_print.assert_called()
 

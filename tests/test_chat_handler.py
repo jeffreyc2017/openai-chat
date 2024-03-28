@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock, ANY, call
 from chat_completions.chat_handler import chat
+from helpers.running_env import RunningEnv
 
 class TestChatHandler(unittest.TestCase):
     @patch('builtins.input', create=True)
@@ -12,7 +13,8 @@ class TestChatHandler(unittest.TestCase):
         """
 
         mock_input.side_effect = ['exit']
-        chat(system_prompt="You are a good friend.", model="gpt-4")
+        # chat(system_prompt="You are a good friend.", model="gpt-4")
+        chat(RunningEnv(instructions="You are a good friend.", model="gpt-4"))
         mock_openai_client = MagicMock()
         mock_get_openai_client.assert_called_once_with()
         mock_openai_client.chat.completions.create.assert_not_called()
@@ -45,7 +47,7 @@ class TestChatHandler(unittest.TestCase):
         mock_openai_client.chat.completions.create().return_value = mock_response
 
         # Execute chat with mocked dependencies
-        chat(system_prompt="You are a good friend.", model="gpt-4")
+        chat(RunningEnv(instructions="You are a good friend.", model="gpt-4"))
 
         mock_get_openai_client.assert_called_once()
         mock_openai_client.chat.completions.create.assert_called_once()

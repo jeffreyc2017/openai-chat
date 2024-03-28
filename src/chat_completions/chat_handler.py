@@ -1,10 +1,11 @@
 from helpers.token_counter import num_tokens_from_messages
-from openai_client_handler import get_openai_client
+from helpers.openai_client_handler import get_openai_client
 from function_call.function_call import function_call, tools
 import traceback
 from advanced_logging_setup import logger
 from helpers.token_counts import TokenCounts
 from openai.types.completion_usage import CompletionUsage
+from helpers.running_env import RunningEnv
 
 def format_user_input(user_input):
     """
@@ -12,7 +13,10 @@ def format_user_input(user_input):
     """
     return "\n".join(user_input)
 
-def one_interaction(openai_client, model, messages, stream_enabled, ) -> tuple[str, any]:
+def one_interaction(openai_client, model, messages, stream_enabled) -> tuple[str, any]:
+    """
+    return response content and usage of tokens
+    """
     response = openai_client.chat.completions.create(
         model=model,
         messages=messages,
@@ -65,7 +69,7 @@ def one_interaction(openai_client, model, messages, stream_enabled, ) -> tuple[s
         usage = response.usage
     return response_content, usage
 
-def chat(system_prompt, model, stream_enabled=False, conversation_history=[]) -> tuple[bool, list]:
+def chat(running_env: RunningEnv, conversation_history=[]) -> tuple[bool, list]:
     """
     This function continuously accepts user input, breaks it into lines, and then sends it to
     OpenAI's chat completion API to generate a response based on the provided model.
@@ -79,7 +83,7 @@ def chat(system_prompt, model, stream_enabled=False, conversation_history=[]) ->
     if conversation_history:
         messages = conversation_history
     else:
-        messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "system", "content": running_env.instructions})
 
     print("--------------------------------")
     print("Enter your message. Press enter twice to send. Type 'exit' to quit.")
@@ -105,7 +109,7 @@ def chat(system_prompt, model, stream_enabled=False, conversation_history=[]) ->
 
         logger.debug(f'Messages: {messages}')
 
-        num_prompt_tokens = num_tokens_from_messages(messages, model)
+        num_prompt_tokens = num_tokens_from_messages(messages, running_env.model)
 
         # Warn the user if the number of tokens for the current request exceeds 1000
         if num_prompt_tokens > 1000:
@@ -116,9 +120,9 @@ def chat(system_prompt, model, stream_enabled=False, conversation_history=[]) ->
         try:
             response_content, usage = one_interaction(
                 openai_client=openai_client,
-                model=model,
+                model=running_env.model,
                 messages=messages,
-                stream_enabled=stream_enabled
+                stream_enabled=running_env.streaming_enabled
             )
             if response_content:
                 messages.append({"role": "assistant", "content": response_content})
