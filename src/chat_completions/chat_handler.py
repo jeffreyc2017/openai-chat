@@ -4,12 +4,66 @@ from function_call.function_call import function_call, tools
 import traceback
 from advanced_logging_setup import logger
 from helpers.token_counts import TokenCounts
+from openai.types.completion_usage import CompletionUsage
 
 def format_user_input(user_input):
     """
     Formats the user input into a structured message for the OpenAI API.
     """
     return "\n".join(user_input)
+
+def one_interaction(openai_client, model, messages, stream_enabled, ) -> tuple[str, any]:
+    response = openai_client.chat.completions.create(
+        model=model,
+        messages=messages,
+        tools=tools,
+        stream=stream_enabled,
+        temperature=1,
+        max_tokens=1024,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0,
+    )
+
+    print("\r-------------------------")  # Use carriage return to overwrite "AI is thinking..." message
+    logger.debug(f'Response: {response}')
+    print("AI: ", end="")
+
+    response_content = ''
+    usage = CompletionUsage(completion_tokens=0, prompt_tokens=0, total_tokens=0)
+
+    if stream_enabled:
+        for chunk in response:
+            logger.debug(f'chunk: {chunk}')
+            for choice in chunk.choices:
+                if hasattr(choice, 'message') and choice.message is not None:
+                    print(choice.message.content, end="")
+                    response_content += choice.message.content
+                elif hasattr(choice, 'delta'):
+                    if choice.delta.content:
+                        print(choice.delta.content, end="")
+                        response_content += choice.delta.content
+                    if choice.delta.tool_calls and choice.delta.role is not None:
+                        second_response = function_call(model, messages, choice.delta)
+                        print(second_response)
+                        response_content = second_response.choices[0].message.content
+
+                        # token_counts.update(second_response.usage.prompt_tokens, second_response.usage.completion_tokens, second_response.usage.total_tokens)
+    else:
+        for choice in response.choices:
+            response_message = choice.message
+
+            if response_message.tool_calls:
+                second_response = function_call(model, messages, response_message)
+                print(second_response.choices[0].message.content)
+                response_content += second_response.choices[0].message.content
+            else:
+                print(response_message.content)
+                response_content += response_message.content
+
+    if hasattr(response, 'usage'):
+        usage = response.usage
+    return response_content, usage
 
 def chat(system_prompt, model, stream_enabled=False, conversation_history=[]) -> tuple[bool, list]:
     """
@@ -60,59 +114,17 @@ def chat(system_prompt, model, stream_enabled=False, conversation_history=[]) ->
         print("AI is thinking...", end="", flush=True)
 
         try:
-            response = openai_client.chat.completions.create(
+            response_content, usage = one_interaction(
+                openai_client=openai_client,
                 model=model,
                 messages=messages,
-                tools=tools,
-                stream=stream_enabled,
-                temperature=1,
-                max_tokens=1024,
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0,
+                stream_enabled=stream_enabled
             )
-
-            print("\r-------------------------")  # Use carriage return to overwrite "AI is thinking..." message
-            logger.debug(f'Response: {response}')
-            print("AI: ", end="")
-
-            response_content = ''
-
-            if stream_enabled:
-                for chunk in response:
-                    logger.debug(f'chunk: {chunk}')
-                    for choice in chunk.choices:
-                        if hasattr(choice, 'message') and choice.message is not None:
-                            print(choice.message.content, end="")
-                            response_content += choice.message.content
-                        elif hasattr(choice, 'delta'):
-                            if choice.delta.content:
-                                print(choice.delta.content, end="")
-                                response_content += choice.delta.content
-                            if choice.delta.tool_calls and choice.delta.role is not None:
-                                second_response = function_call(model, messages, choice.delta)
-                                print(second_response)
-                                response_content = second_response.choices[0].message.content
-
-                                token_counts.update(second_response.usage.prompt_tokens, second_response.usage.completion_tokens, second_response.usage.total_tokens)
-            else:
-                for choice in response.choices:
-                    response_message = choice.message
-
-                    if response_message.tool_calls:
-                        second_response = function_call(model, messages, response_message)
-                        print(second_response.choices[0].message.content)
-                        response_content += second_response.choices[0].message.content
-                    else:
-                        print(response_message.content)
-                        response_content += response_message.content
-
-                token_counts.update(response.usage.prompt_tokens, response.usage.completion_tokens, response.usage.total_tokens)
-
             if response_content:
                 messages.append({"role": "assistant", "content": response_content})
-
             print("\n-------------------------")
+
+            token_counts.update(usage.prompt_tokens, usage.completion_tokens, usage.total_tokens)
             token_counts.print()
         except Exception as e:
             print(f"\nAn error occurred: {e}")

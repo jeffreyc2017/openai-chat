@@ -36,7 +36,8 @@ def main():
         chat_completions_or_assistant = input("Chat completions(C/c) or Assistant(A/a)?:").lower()
         if chat_completions_or_assistant != 'a' and chat_completions_or_assistant != 'c':
             return
-        streaming_enabled = input("Enable streaming?(Y/y):").lower() == 'y'
+        streaming_enabled_input = input("Enable streaming?(Y/n):").lower()
+        streaming_enabled = (streaming_enabled_input == 'y') or (not streaming_enabled_input)
         model = choose_model()
 
         # Unpack returned values from choose_prompt
